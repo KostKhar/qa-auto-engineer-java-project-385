@@ -13,6 +13,9 @@ java {
 }
 
 dependencies {
+
+    implementation("org.seleniumhq.selenium:selenium-api:4.40.0")
+
     testImplementation(platform("org.junit:junit-bom:6.0.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.seleniumhq.selenium:selenium-java:4.40.0")
