@@ -1,25 +1,34 @@
 package hexlet.code.pages;
 
+import hexlet.code.components.Header;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class DashboardPage {
-    private final WebDriver driver;
-
-    public DashboardPage(WebDriver driver) {
-        this.driver = driver;
-    }
+public class DashboardPage extends BasePage {
+    private Header header;
 
     private static final String TITLE_OF_CONTENT_ROOT = "Lorem ipsum sic dolor amet...";
-    private final By titleOfContentRootLocator = By.cssSelector("class=MuiCardContent-root css-15q2cw4");
+    private final By titleOfContentRootLocator = By.xpath("//*[@class='MuiCardContent-root css-15q2cw4']");
 
-    public String getTitleOfContentRoot() {
+    public DashboardPage(WebDriver driver) {
+        super(driver);
+        initComponents();
+    }
+
+    @Override
+    public void initComponents() {
+        header = new Header(driver);
+    }
+
+    public String getTitleOfContentRootByLocator() {
         return driver.findElement(titleOfContentRootLocator).getText();
     }
 
-    public boolean titleEqualsOnDashboard() {
-        return TITLE_OF_CONTENT_ROOT.equals(getTitleOfContentRoot());
+    public String getTitleOfContentRoot() {
+        return TITLE_OF_CONTENT_ROOT;
     }
 
-
+    public Header getHeader() {
+        return header;
+    }
 }
