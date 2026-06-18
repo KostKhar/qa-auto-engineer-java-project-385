@@ -18,9 +18,9 @@ public class LoginPage extends BasePage {
     }
 
     public DashboardPage signInByLoginAndPassword(String username, String password) {
-        Allure.step("Заполнение поля логин", ()-> waitForElementAndSendKeys(loginField, username));
-        Allure.step("Заполнение поля пароль", ()-> waitForElementAndSendKeys(passwordField, password));
-        Allure.step("Нажимаем на кнопку Sign in", ()-> waitForElementAndClick(signInButton));
+        Allure.step("Заполнение поля логин", () -> waitForElementAndSendKeys(loginField, username));
+        Allure.step("Заполнение поля пароль", () -> waitForElementAndSendKeys(passwordField, password));
+        Allure.step("Нажимаем на кнопку Sign in", () -> waitForElementAndClick(signInButton));
         waitForPageLoaded();
         return new DashboardPage(driver);
     }

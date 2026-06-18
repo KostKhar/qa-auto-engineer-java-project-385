@@ -1,7 +1,10 @@
 package hexlet.code.pages;
 
 import io.qameta.allure.Allure;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,10 +15,9 @@ import java.util.function.Function;
 import static hexlet.code.config.ConfigurationManager.config;
 
 public abstract class BasePage {
+    protected static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
     protected WebDriver driver;
     protected WebDriverWait wait;
-
-    protected static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
 
 
     protected BasePage(WebDriver driver) {
@@ -29,12 +31,12 @@ public abstract class BasePage {
 
     protected WebElement waitForElementVisible(By locator) {
         return Allure.step("Ожидание видимости элемента",
-                ()-> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+                () -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
     }
 
     protected WebElement waitForElementClickable(By locator) {
         return Allure.step("Ожидание кликабельности элемента",
-                ()-> wait.until(ExpectedConditions.elementToBeClickable(locator)));
+                () -> wait.until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
     protected WebElement waitForElementPresent(By locator) {
@@ -73,7 +75,7 @@ public abstract class BasePage {
 
 
     protected void waitForPageLoaded() {
-        Allure.step("Ожидание загрузки страницы",()->  wait.until(webDriver ->
+        Allure.step("Ожидание загрузки страницы", () -> wait.until(webDriver ->
                 Objects.equals(((JavascriptExecutor) webDriver)
                         .executeScript("return document.readyState"), "complete")
         ));
