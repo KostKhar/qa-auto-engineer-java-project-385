@@ -12,17 +12,17 @@ public interface Configuration extends Config {
     @Key("APP_BASE_URL")
     String baseUrl();
 
-    @Key("base.test.video.path")
-    String baseTestVideoPath();
-
-    String browser();
-
+    @Key("headless")
     boolean headless();
 
-    @Key("slow.motion")
-    int slowMotion();
-
+    @Key("timeout")
     int timeout();
 
-    boolean video();
+    @Key("window.width")
+    @DefaultValue("1920")
+    int windowWidth();
+
+    @Key("window.height")
+    @DefaultValue("1080")
+    int windowHeight();
 }

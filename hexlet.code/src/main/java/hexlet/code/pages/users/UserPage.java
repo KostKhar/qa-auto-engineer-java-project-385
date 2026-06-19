@@ -1,5 +1,6 @@
 package hexlet.code.pages.users;
 
+import hexlet.code.components.SideBar;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,50 +13,62 @@ public class UserPage extends BasePage {
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
     private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
     private final By showButton = By.xpath("//*[@aria-label='Show']");
+    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
 
-    private final By successUpdatedPopup = By.xpath("//*[@text='Element updated']");
-    private final By successDeletePopup = By.xpath("//*[@text='Element deleted']");
-
+    private final By successCreatePopup = By.xpath("//*[contains(text(), 'Element created')]");
+    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'Element updated')]");
+    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
 
     protected UserPage(WebDriver driver) {
         super(driver);
+    }
+
+    public UsersListPage createUserAndReturnToList(User user) {
+        createUser(user);
+        return new SideBar(driver).getUsersListPage();
     }
 
     public boolean createUser(User user) {
         waitForElementAndSendKeys(emailField, user.getEmail());
         waitForElementAndSendKeys(firstNameField, user.getFirstname());
         waitForElementAndSendKeys(lastNameField, user.getLastname());
-        waitForElementClickable(saveButton);
-        driver.findElement(saveButton).click();
-        return driver.findElement(successUpdatedPopup).isDisplayed();
+        waitForElementClickable(saveButton).click();
+        waitForElementVisible(successCreatePopup);
+        return true;
     }
 
     public boolean deleteUser() {
-        driver.findElement(deleteButton).click();
-        return driver.findElement(successDeletePopup).isDisplayed();
+        waitForElementClickable(deleteButton).click();
+        waitForElementClickable(confirmDeleteButton).click();
+        waitForElementVisible(successDeletePopup);
+        return true;
     }
 
-    public By getEmailField() {
-        return emailField;
+    public boolean isEmailFieldVisible() {
+        return waitForElementVisible(emailField).isDisplayed();
     }
 
-    public By getFirstNameField() {
-        return firstNameField;
+    public boolean isFirstNameFieldVisible() {
+        return waitForElementVisible(firstNameField).isDisplayed();
     }
 
-    public By getSaveButton() {
-        return saveButton;
+    public boolean isLastNameFieldVisible() {
+        return waitForElementVisible(lastNameField).isDisplayed();
     }
 
-    public By getLastNameField() {
-        return lastNameField;
+    public boolean isSaveButtonVisible() {
+        return waitForElementVisible(saveButton).isDisplayed();
     }
 
-    public By getDeleteButton() {
-        return deleteButton;
+    public boolean isDeleteButtonVisible() {
+        return waitForElementVisible(deleteButton).isDisplayed();
     }
 
-    public By getShowButton() {
-        return showButton;
+    public boolean isShowButtonVisible() {
+        return waitForElementVisible(showButton).isDisplayed();
+    }
+
+    public boolean isUpdateSuccessful() {
+        return waitForElementVisible(successUpdatedPopup).isDisplayed();
     }
 }

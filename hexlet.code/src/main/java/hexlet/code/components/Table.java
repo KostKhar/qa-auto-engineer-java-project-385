@@ -9,23 +9,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static hexlet.code.config.ConfigurationManager.config;
 
 public class Table<T> {
+    private static final By TABLE_BODY = By.xpath(".//tbody");
+    private static final By TABLE_HEADER = By.xpath(".//thead");
+
     private final WebElement tableContainer;
     private final RowMapper<T> rowMapper;
-    private WebDriver driver;
     private final WebDriverWait wait;
-    private final WebElement headerRow = driver.findElement(By.xpath("//*/table/thead"));
-    private final List<WebElement> bodyRows = driver.findElements(By.xpath("//*/table/tbody/tr"));
-    private final WebElement tbody = driver.findElement(By.xpath("//*/table/tbody/tr/td"));
+    private final WebElement headerRow;
+    private final WebElement tbody;
+
     public Table(WebDriver driver, WebElement tableContainer, RowMapper<T> rowMapper) {
-        this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
         this.tableContainer = tableContainer;
         this.rowMapper = rowMapper;
+        this.headerRow = tableContainer.findElement(TABLE_HEADER);
+        this.tbody = tableContainer.findElement(TABLE_BODY);
     }
 
     public List<WebElement> getRows() {
@@ -62,7 +64,7 @@ public class Table<T> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
             List<String> rowData = cells.stream()
                     .map(cell -> cell.getText().trim())
-                    .collect(Collectors.toList());
+                    .toList();
             data.add(rowData);
         }
 
@@ -150,7 +152,6 @@ public class Table<T> {
         WebElement row = findRowByColumnValue(colIndex, expectedValue);
         return row != null ? rowMapper.map(row) : null;
     }
-
 
     @FunctionalInterface
     public interface RowMapper<T> {

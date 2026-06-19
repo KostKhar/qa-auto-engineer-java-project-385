@@ -15,12 +15,11 @@ java {
 val seleniumVersion = "4.40.0"
 val chromeVersion = "149"
 val allureVersion = "2.35.2"
+val lombokVersion = "1.18.38"
 
 dependencies {
     implementation("org.seleniumhq.selenium:selenium-java:$seleniumVersion")
     implementation("org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion")
-
-    implementation("org.seleniumhq.selenium:selenium-devtools-v$chromeVersion:$seleniumVersion")
 
     implementation("org.aeonbits.owner:owner:1.0.12")
 
@@ -33,7 +32,13 @@ dependencies {
     testImplementation("io.github.bonigarcia:webdrivermanager:5.9.0")
     testImplementation("io.qameta.allure:allure-junit5:$allureVersion")
 
-}
+     implementation ("org.projectlombok:lombok:$lombokVersion")
+     annotationProcessor ("org.projectlombok:lombok:$lombokVersion")
+     testImplementation ("org.projectlombok:lombok:$lombokVersion")
+     testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
+
+     testImplementation ("com.github.javafaker:javafaker:1.0.2")
+ }
 
 tasks.test {
     useJUnitPlatform()

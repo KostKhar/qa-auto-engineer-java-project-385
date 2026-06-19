@@ -25,8 +25,8 @@ public class LoginPage extends BasePage {
         return new DashboardPage(driver);
     }
 
-    public By getErrorMessage() {
-        return errorMessage;
+    public String getErrorMessageText() {
+        return waitForElementVisible(errorMessage).getText();
     }
 
     public boolean isSignInButtonVisible() {
