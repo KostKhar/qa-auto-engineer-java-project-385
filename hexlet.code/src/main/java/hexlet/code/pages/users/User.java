@@ -1,10 +1,12 @@
 package hexlet.code.pages.users;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 @Getter
+@Setter
 public class User {
 
     private WebElement row;
@@ -29,6 +31,9 @@ public class User {
         this.lastname = lastname;
     }
 
+    public void clickUser() {
+        row.findElement(By.xpath("//*/tbody/tr]")).click();
+    }
 
     public void clickCheckbox() {
         row.findElement(By.xpath(".//input[@aria-label='Select this row']")).click();

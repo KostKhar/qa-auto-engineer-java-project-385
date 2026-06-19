@@ -18,6 +18,9 @@ public interface Configuration extends Config {
     @Key("timeout")
     int timeout();
 
+    @Key("browser")
+    String browser();
+
     @Key("window.width")
     @DefaultValue("1920")
     int windowWidth();

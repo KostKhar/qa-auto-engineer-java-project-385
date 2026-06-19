@@ -37,6 +37,14 @@ public class UserPage extends BasePage {
         return true;
     }
 
+    public boolean updateUser(User user) {
+        waitForElementAndSendKeys(emailField, user.getEmail());
+        waitForElementAndSendKeys(firstNameField, user.getFirstname());
+        waitForElementAndSendKeys(lastNameField, user.getLastname());
+        waitForElementClickable(saveButton).click();
+        return isUpdateSuccessful();
+    }
+
     public boolean deleteUser() {
         waitForElementClickable(deleteButton).click();
         waitForElementClickable(confirmDeleteButton).click();

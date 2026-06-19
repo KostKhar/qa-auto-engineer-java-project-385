@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserPageTest extends BasePageTest {
     private UsersListPage usersListPage;
-    private User createdUser;
+    private User testUser;
 
     @BeforeEach
     void login() {
@@ -28,18 +28,18 @@ class UserPageTest extends BasePageTest {
 
     @AfterEach
     void cleanupCreatedUser() {
-        if (createdUser == null) {
+        if (testUser == null) {
             return;
         }
 
         try {
             UsersListPage listPage = new SideBar(driver).getUsersListPage();
-            if (listPage.isUserExists(createdUser.getEmail())) {
-                listPage.deleteUserByEmail(createdUser.getEmail());
+            if (listPage.isUserExists(testUser.getEmail())) {
+                listPage.deleteUserByEmail(testUser.getEmail());
             }
         } catch (Exception ignored) {
         } finally {
-            createdUser = null;
+            testUser = null;
         }
     }
 
@@ -55,10 +55,40 @@ class UserPageTest extends BasePageTest {
 
     @Test
     void checkCreateNewUser() {
-        createdUser = RandomTestData.getUser();
+        testUser = RandomTestData.getUser();
         UserPage userPage = usersListPage.clickCreateUser();
 
-        usersListPage = userPage.createUserAndReturnToList(createdUser);
-        assertTrue(usersListPage.isUserExists(createdUser.getEmail()));
+        usersListPage = userPage.createUserAndReturnToList(testUser);
+        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
     }
+
+    @Test
+    void checkUpdateUser() {
+        testUser = RandomTestData.getUser();
+        UserPage userPage = usersListPage.clickCreateUser();
+
+        usersListPage = userPage.createUserAndReturnToList(testUser);
+        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+
+        User updateUser =  RandomTestData.getUser();
+        usersListPage.updateUserByEmail(testUser.getEmail(), updateUser);
+        assertTrue(usersListPage.isUserExists(updateUser.getEmail()));
+    }
+
+    @Test
+    void shouldUpdateUserWithoutEmail_returnError() {
+        testUser = RandomTestData.getUser();
+        UserPage userPage = usersListPage.clickCreateUser();
+
+        usersListPage = userPage.createUserAndReturnToList(testUser);
+        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+
+        User updateUser =  RandomTestData.getUser();
+        updateUser.setEmail(null);
+        usersListPage.updateUserByEmail(testUser.getEmail(), updateUser);
+        assertTrue(usersListPage.isUserExists(updateUser.getEmail()));
+    }
+
+
+
 }

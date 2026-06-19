@@ -74,6 +74,18 @@ public class UsersListPage extends BasePage {
         return usersTable.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
     }
 
+    public boolean updateUserByEmail(String email, User userToUpdate) {
+        searchUser(email);
+        User user = usersTable.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
+        if (user == null) {
+            throw new IllegalArgumentException(String.format("User with email '%s' does not exist", email));
+        }
+
+        user.clickUser();
+        UserPage userPage = new UserPage(driver);
+        return userPage.updateUser(userToUpdate);
+    }
+
     public boolean deleteUserByEmail(String email) {
         searchUser(email);
         User user = usersTable.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
