@@ -9,14 +9,17 @@ import hexlet.code.pages.users.UserPage;
 import hexlet.code.pages.users.UsersListPage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserPageTest extends BasePageTest {
+    private final List<String> emailsToCleanup = new ArrayList<>();
     private UsersListPage usersListPage;
-    private User testUser;
 
     @BeforeEach
     void login() {
@@ -27,23 +30,33 @@ class UserPageTest extends BasePageTest {
     }
 
     @AfterEach
-    void cleanupCreatedUser() {
-        if (testUser == null) {
-            return;
-        }
-
+    void cleanupCreatedUsers() {
         try {
             UsersListPage listPage = new SideBar(driver).getUsersListPage();
-            if (listPage.isUserExists(testUser.getEmail())) {
-                listPage.deleteUserByEmail(testUser.getEmail());
+            for (String email : emailsToCleanup) {
+                if (listPage.isUserExists(email)) {
+                    listPage.deleteUserByEmail(email);
+                }
             }
         } catch (Exception ignored) {
         } finally {
-            testUser = null;
+            emailsToCleanup.clear();
         }
     }
 
+    private void trackForCleanup(String email) {
+        if (email != null && !email.isBlank()) {
+            emailsToCleanup.add(email);
+        }
+    }
+
+    private UsersListPage createUserOnList(User user) {
+        usersListPage = usersListPage.clickCreateUser().createUserAndReturnToList(user);
+        return usersListPage;
+    }
+
     @Test
+    @DisplayName("Отображение формы создания пользователя")
     void checkUserPage() {
         UserPage userPage = usersListPage.clickCreateUser();
 
@@ -54,41 +67,94 @@ class UserPageTest extends BasePageTest {
     }
 
     @Test
+    @DisplayName("Создание нового пользователя")
     void checkCreateNewUser() {
-        testUser = RandomTestData.getUser();
-        UserPage userPage = usersListPage.clickCreateUser();
+        User testUser = RandomTestData.getUser();
+        trackForCleanup(testUser.getEmail());
 
-        usersListPage = userPage.createUserAndReturnToList(testUser);
+        createUserOnList(testUser);
         assertTrue(usersListPage.isUserExists(testUser.getEmail()));
     }
 
     @Test
+    @DisplayName("Форма редактирования заполнена данными пользователя")
+    void checkEditFormPrefilled() {
+        User testUser = RandomTestData.getUser();
+        trackForCleanup(testUser.getEmail());
+
+        createUserOnList(testUser);
+
+        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail()).openEditForm();
+
+        assertEquals(testUser.getEmail(), userPage.getEmailValue());
+        assertEquals(testUser.getFirstname(), userPage.getFirstNameValue());
+        assertEquals(testUser.getLastname(), userPage.getLastNameValue());
+    }
+
+    @Test
+    @DisplayName("Редактирование данных пользователя")
     void checkUpdateUser() {
-        testUser = RandomTestData.getUser();
-        UserPage userPage = usersListPage.clickCreateUser();
+        User testUser = RandomTestData.getUser();
+        trackForCleanup(testUser.getEmail());
 
-        usersListPage = userPage.createUserAndReturnToList(testUser);
-        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+        createUserOnList(testUser);
 
-        User updateUser =  RandomTestData.getUser();
-        usersListPage.updateUserByEmail(testUser.getEmail(), updateUser);
-        assertTrue(usersListPage.isUserExists(updateUser.getEmail()));
+        User updatedUser = RandomTestData.getUser();
+        trackForCleanup(updatedUser.getEmail());
+
+        usersListPage = usersListPage.updateUserByEmail(testUser.getEmail(), updatedUser);
+
+        User userInList = usersListPage.getUserByEmail(updatedUser.getEmail());
+        assertEquals(updatedUser.getEmail(), userInList.getEmail());
+        assertEquals(updatedUser.getFirstname(), userInList.getFirstname());
+        assertEquals(updatedUser.getLastname(), userInList.getLastname());
+        assertTrue(usersListPage.isUserNotExists(testUser.getEmail()));
     }
 
     @Test
-    void shouldUpdateUserWithoutEmail_returnError() {
-        testUser = RandomTestData.getUser();
+    @DisplayName("Валидация некорректного email при создании пользователя")
+    void checkInvalidEmailOnCreate() {
         UserPage userPage = usersListPage.clickCreateUser();
+        User invalidUser = new User("invalid-email", "Test", "User");
 
-        usersListPage = userPage.createUserAndReturnToList(testUser);
-        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+        userPage.fillUserForm(invalidUser);
+        userPage.submitFormWithoutWaitingForSuccess();
 
-        User updateUser =  RandomTestData.getUser();
-        updateUser.setEmail(null);
-        usersListPage.updateUserByEmail(testUser.getEmail(), updateUser);
-        assertTrue(usersListPage.isUserExists(updateUser.getEmail()));
+        assertTrue(userPage.hasValidationError());
+
+        usersListPage = new SideBar(driver).getUsersListPage();
+        assertTrue(usersListPage.isUserNotExists("invalid-email"));
     }
 
+    @Test
+    @DisplayName("Валидация некорректного email при обновлении пользователя")
+    void checkInvalidEmailOnUpdate() {
+        User testUser = RandomTestData.getUser();
+        trackForCleanup(testUser.getEmail());
 
+        createUserOnList(testUser);
 
+        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail()).openEditForm();
+        userPage.fillUserForm(new User("invalid-email", testUser.getFirstname(), testUser.getLastname()));
+        userPage.submitFormWithoutWaitingForSuccess();
+
+        assertTrue(userPage.hasValidationError());
+
+        usersListPage = new SideBar(driver).getUsersListPage();
+        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+    }
+
+    @Test
+    @DisplayName("Удаление пользователя")
+    void checkDeleteUser() {
+        User testUser = RandomTestData.getUser();
+
+        createUserOnList(testUser);
+        assertTrue(usersListPage.isUserExists(testUser.getEmail()));
+
+        assertTrue(usersListPage.deleteUserByEmail(testUser.getEmail()));
+
+        usersListPage = new SideBar(driver).getUsersListPage();
+        assertTrue(usersListPage.isUserNotExists(testUser.getEmail()));
+    }
 }

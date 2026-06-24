@@ -1,8 +1,8 @@
 package hexlet.code.tests;
 
-
 import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DashboardPageTest extends BasePageTest {
 
     @Test
+    @DisplayName("Нажатие кнопки выхода из системы")
     void checkClickLogoutButton() {
         LoginPage loginPage = new LoginPage(driver);
 

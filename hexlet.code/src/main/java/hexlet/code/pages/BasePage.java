@@ -39,22 +39,12 @@ public abstract class BasePage {
                 () -> wait.until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
-    protected WebElement waitForElementPresent(By locator) {
-        return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-    }
 
-    protected boolean waitForElementInvisible(By locator) {
-        return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    protected void waitForElementClearAndSendKeys(By locator, String text) {
+        WebElement element = waitForElementVisible(locator);
+        element.clear();
+        element.sendKeys(text);
     }
-
-    protected void waitForTextToBePresent(By locator, String text) {
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
-    }
-
-    protected void waitForAttributeToContain(By locator, String attribute, String value) {
-        wait.until(ExpectedConditions.attributeContains(locator, attribute, value));
-    }
-
 
     protected void waitForElementAndClick(By locator) {
         waitForElementClickable(locator).click();
@@ -86,5 +76,15 @@ public abstract class BasePage {
                 (Boolean) ((JavascriptExecutor) webDriver)
                         .executeScript("return jQuery.active == 0")
         );
+    }
+
+    protected String xpathLiteral(String value) {
+        if (!value.contains("'")) {
+            return "'" + value + "'";
+        }
+        if (!value.contains("\"")) {
+            return "\"" + value + "\"";
+        }
+        return "concat('" + value.replace("'", "',\"'\",'") + "')";
     }
 }

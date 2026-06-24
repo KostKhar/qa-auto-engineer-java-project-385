@@ -2,6 +2,7 @@ package hexlet.code.tests;
 
 import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class LoginPageTest extends BasePageTest {
 
     @Test
+    @DisplayName("Вход по логину и паролю")
     void checkLoginByUsernameAndPassword() {
         LoginPage loginPage = new LoginPage(driver);
 
@@ -19,6 +21,7 @@ class LoginPageTest extends BasePageTest {
     }
 
     @Test
+    @DisplayName("Вход без логина возвращает ошибку")
     void checkLoginWithoutUsername_returnError() {
         LoginPage loginPage = new LoginPage(driver);
 
@@ -28,6 +31,7 @@ class LoginPageTest extends BasePageTest {
     }
 
     @Test
+    @DisplayName("Вход без пароля возвращает ошибку")
     void checkLoginWithoutPassword_returnError() {
         LoginPage loginPage = new LoginPage(driver);
 

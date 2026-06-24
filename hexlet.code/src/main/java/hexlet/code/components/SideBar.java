@@ -2,8 +2,8 @@ package hexlet.code.components;
 
 import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.labels.LabelsListPage;
+import hexlet.code.pages.statuses.StatusesListPage;
 import hexlet.code.pages.tasks.TasksListPage;
-import hexlet.code.pages.taskstatuses.TaskStatusesListPage;
 import hexlet.code.pages.users.UsersListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -49,9 +49,9 @@ public class SideBar {
         return new LabelsListPage(driver);
     }
 
-    public TaskStatusesListPage getTaskStatuses() {
+    public StatusesListPage getStatusesListPage() {
         clickLink(taskStatusesButton);
-        return new TaskStatusesListPage(driver);
+        return new StatusesListPage(driver);
     }
 
     private void clickLink(By locator) {

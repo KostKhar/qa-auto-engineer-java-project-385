@@ -1,4 +1,4 @@
-package hexlet.code.pages.statuses;
+package hexlet.code.pages.labels;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,25 +7,25 @@ import org.openqa.selenium.WebElement;
 
 @Getter
 @Setter
-public class Status {
+public class Label {
     private WebElement row;
     private String id;
     private String name;
     private String slug;
 
-    public Status(WebElement row, String id, String name, String slug) {
+    public Label(WebElement row, String id, String name, String slug) {
         this.row = row;
         this.id = id;
         this.name = name;
         this.slug = slug;
     }
 
-    public Status(String name, String slug) {
+    public Label(String name, String slug) {
         this.name = name;
         this.slug = slug;
     }
 
-    public void clickStatus() {
+    public void clickLabel() {
         row.findElement(By.xpath(".//td[3]//a | .//td[3]")).click();
     }
 

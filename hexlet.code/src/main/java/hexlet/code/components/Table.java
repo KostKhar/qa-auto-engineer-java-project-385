@@ -15,22 +15,20 @@ import static hexlet.code.config.ConfigurationManager.config;
 public class Table<T> {
     private static final By TABLE_BODY = By.xpath(".//tbody");
     private static final By TABLE_HEADER = By.xpath(".//thead");
+    private static final By cell = By.xpath(".//td");
 
     private final WebElement tableContainer;
     private final RowMapper<T> rowMapper;
     private final WebDriverWait wait;
-    private final WebElement headerRow;
-    private final WebElement tbody;
 
     public Table(WebDriver driver, WebElement tableContainer, RowMapper<T> rowMapper) {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
         this.tableContainer = tableContainer;
         this.rowMapper = rowMapper;
-        this.headerRow = tableContainer.findElement(TABLE_HEADER);
-        this.tbody = tableContainer.findElement(TABLE_BODY);
     }
 
     public List<WebElement> getRows() {
+        WebElement tbody = tableContainer.findElement(TABLE_BODY);
         wait.until(ExpectedConditions.visibilityOf(tbody));
         return tableContainer.findElements(By.xpath(".//tbody//tr"));
     }
@@ -45,7 +43,7 @@ public class Table<T> {
 
     public WebElement getCell(int rowIndex, int colIndex) {
         WebElement row = getRow(rowIndex);
-        List<WebElement> cells = row.findElements(By.xpath(".//td"));
+        List<WebElement> cells = row.findElements(cell);
         if (colIndex < 0 || colIndex >= cells.size()) {
             throw new IndexOutOfBoundsException("Column index " + colIndex + " out of bounds. Row has " + cells.size() + " cells.");
         }
@@ -56,22 +54,8 @@ public class Table<T> {
         return getCell(rowIndex, colIndex).getText().trim();
     }
 
-    public List<List<String>> getTableData() {
-        List<List<String>> data = new ArrayList<>();
-        List<WebElement> rows = getRows();
-
-        for (WebElement row : rows) {
-            List<WebElement> cells = row.findElements(By.xpath(".//td"));
-            List<String> rowData = cells.stream()
-                    .map(cell -> cell.getText().trim())
-                    .toList();
-            data.add(rowData);
-        }
-
-        return data;
-    }
-
     public List<String> getHeaders() {
+        WebElement headerRow = tableContainer.findElement(TABLE_HEADER);
         wait.until(ExpectedConditions.visibilityOf(headerRow));
         List<WebElement> headers = headerRow.findElements(By.xpath(".//th"));
         return headers.stream()
@@ -83,7 +67,7 @@ public class Table<T> {
         List<WebElement> rows = getRows();
 
         for (WebElement row : rows) {
-            List<WebElement> cells = row.findElements(By.xpath(".//td"));
+            List<WebElement> cells = row.findElements(cell);
             if (colIndex < cells.size()) {
                 String cellText = cells.get(colIndex).getText().trim();
                 if (cellText.equals(expectedValue)) {
@@ -95,49 +79,7 @@ public class Table<T> {
         return null;
     }
 
-    public WebElement findRowByColumnValueIgnoreCase(int colIndex, String expectedValue) {
-        List<WebElement> rows = getRows();
 
-        for (WebElement row : rows) {
-            List<WebElement> cells = row.findElements(By.xpath(".//td"));
-            if (colIndex < cells.size()) {
-                String cellText = cells.get(colIndex).getText().trim();
-                if (cellText.equalsIgnoreCase(expectedValue)) {
-                    return row;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public List<WebElement> findRowsByColumnContains(int colIndex, String partialValue) {
-        List<WebElement> matchedRows = new ArrayList<>();
-        List<WebElement> rows = getRows();
-
-        for (WebElement row : rows) {
-            List<WebElement> cells = row.findElements(By.xpath(".//td"));
-            if (colIndex < cells.size()) {
-                String cellText = cells.get(colIndex).getText().trim();
-                if (cellText.contains(partialValue)) {
-                    matchedRows.add(row);
-                }
-            }
-        }
-
-        return matchedRows;
-    }
-
-    public List<T> getRowsAsObjects() {
-        List<T> objects = new ArrayList<>();
-        List<WebElement> rows = getRows();
-
-        for (WebElement row : rows) {
-            objects.add(rowMapper.map(row));
-        }
-
-        return objects;
-    }
 
     public T getRowAsObject(int index) {
         WebElement row = getRow(index);

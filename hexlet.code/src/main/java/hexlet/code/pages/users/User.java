@@ -32,10 +32,10 @@ public class User {
     }
 
     public void clickUser() {
-        row.findElement(By.xpath("//*/tbody/tr]")).click();
+        row.findElement(By.xpath(".//td[3]")).click();
     }
 
     public void clickCheckbox() {
-        row.findElement(By.xpath(".//input[@aria-label='Select this row']")).click();
+        row.findElement(By.xpath(".//input[@type='checkbox']")).click();
     }
 }

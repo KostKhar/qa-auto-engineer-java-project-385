@@ -1,17 +1,45 @@
 package hexlet.code.pages.tasks;
 
+import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class TaskByIdForm {
-
-    private final WebDriver driver;
-    private final By title = By.cssSelector(".MuiTypography-root.MuiTypography-h5.css-elr2b6");
-    private final By description = By.cssSelector(".MuiTypography-root.MuiTypography-body2.css-bxmwoh");
-    private final By editButton = By.xpath("//*[@data-testid='CreateIcon']");
-    private final By showButton = By.xpath("//*[@data-testid='RemoveRedEyeIcon']");
+public class TaskByIdForm extends BasePage {
+    private final By title = By.xpath(
+            "(//*[contains(@class,'MuiCardContent-root')]//span[contains(@class,'MuiTypography-body2')])[2]"
+    );
+    private final By description = By.xpath(
+            "(//*[contains(@class,'MuiCardContent-root')]//span[contains(@class,'MuiTypography-body2')])[3]"
+    );
+    private final By assigneeField = By.xpath(
+            "//*[contains(@class,'MuiCardContent-root')]//a[contains(@href,'#/users')]"
+    );
 
     public TaskByIdForm(WebDriver driver) {
-        this.driver = driver;
+        super(driver);
+    }
+
+    public String getTitleText() {
+        return waitForElementVisible(title).getText().trim();
+    }
+
+    public String getDescriptionText() {
+        return waitForElementVisible(description).getText().trim();
+    }
+
+    public String getAssigneeText() {
+        return waitForElementVisible(assigneeField).getText().trim();
+    }
+
+    public boolean isTitleVisible() {
+        return waitForElementVisible(title).isDisplayed();
+    }
+
+    public boolean isDescriptionVisible() {
+        return waitForElementVisible(description).isDisplayed();
+    }
+
+    public boolean isAssigneeVisible() {
+        return waitForElementVisible(assigneeField).isDisplayed();
     }
 }
