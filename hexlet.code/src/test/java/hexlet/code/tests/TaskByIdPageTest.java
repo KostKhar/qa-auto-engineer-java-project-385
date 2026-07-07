@@ -39,7 +39,8 @@ class TaskByIdPageTest extends BasePageTest {
                     listPage.deleteTaskByTitle(title);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             titlesToCleanup.clear();
         }
@@ -152,12 +153,50 @@ class TaskByIdPageTest extends BasePageTest {
     @DisplayName("Валидация пустого заголовка при создании задачи")
     void checkEmptyTitleOnCreate() {
         TaskByIdPage taskPage = tasksListPage.clickCreateTask();
-        Task invalidTask = new Task("", "Valid content", "john@google.com", "Draft");
+        Task invalidTask = new Task("", "Valid content", RandomTestData.getRandomAssigneeEmail(), "Draft");
 
         taskPage.fillTaskForm(invalidTask);
         taskPage.submitFormWithoutWaitingForSuccess();
 
         assertTrue(taskPage.hasValidationError());
+    }
+
+    @Test
+    @DisplayName("Валидация пустого исполнителя при создании задачи")
+    void checkEmptyAssigneeOnCreate() {
+        Task invalidTask = RandomTestData.getTask();
+        invalidTask.setAssigneeEmail(null);
+
+        TaskByIdPage taskPage = tasksListPage.clickCreateTask();
+        taskPage.fillTaskForm(invalidTask);
+        taskPage.submitFormWithoutWaitingForSuccess();
+
+        assertAll(
+                () -> assertTrue(taskPage.isAssigneeValidationErrorVisible()),
+                () -> assertTrue(taskPage.hasValidationError())
+        );
+
+        tasksListPage = new SideBar(driver).getTaskListPage();
+        assertTrue(tasksListPage.isTaskNotExists(invalidTask.getTitle()));
+    }
+
+    @Test
+    @DisplayName("Валидация пустого статуса при создании задачи")
+    void checkEmptyStatusOnCreate() {
+        Task invalidTask = RandomTestData.getTask();
+        invalidTask.setStatusName(null);
+
+        TaskByIdPage taskPage = tasksListPage.clickCreateTask();
+        taskPage.fillTaskForm(invalidTask);
+        taskPage.submitFormWithoutWaitingForSuccess();
+
+        assertAll(
+                () -> assertTrue(taskPage.isStatusValidationErrorVisible()),
+                () -> assertTrue(taskPage.hasValidationError())
+        );
+
+        tasksListPage = new SideBar(driver).getTaskListPage();
+        assertTrue(tasksListPage.isTaskNotExists(invalidTask.getTitle()));
     }
 
     @Test

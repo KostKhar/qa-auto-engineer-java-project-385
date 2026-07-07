@@ -1,14 +1,12 @@
 package hexlet.code.pages;
 
 import io.qameta.allure.Allure;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -39,10 +37,16 @@ public abstract class BasePage {
                 () -> wait.until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
+    protected boolean waitForElementInvisible(By locator) {
+        return Allure.step("Ожидание исчезновения элемента",
+                () -> wait.until(ExpectedConditions.invisibilityOfElementLocated(locator)));
+    }
+
 
     protected void waitForElementClearAndSendKeys(By locator, String text) {
         WebElement element = waitForElementVisible(locator);
-        element.clear();
+        element.sendKeys(Keys.chord(Keys.COMMAND, "a")); // Выделяет
+        element.sendKeys(Keys.DELETE);
         element.sendKeys(text);
     }
 
@@ -52,10 +56,6 @@ public abstract class BasePage {
 
     protected void waitForElementAndSendKeys(By locator, String text) {
         waitForElementVisible(locator).sendKeys(text);
-    }
-
-    protected String waitForElementAndGetText(By locator) {
-        return waitForElementVisible(locator).getText();
     }
 
 
@@ -71,12 +71,6 @@ public abstract class BasePage {
         ));
     }
 
-    protected void waitForAjaxComplete() {
-        wait.until(webDriver ->
-                (Boolean) ((JavascriptExecutor) webDriver)
-                        .executeScript("return jQuery.active == 0")
-        );
-    }
 
     protected String xpathLiteral(String value) {
         if (!value.contains("'")) {
@@ -86,5 +80,47 @@ public abstract class BasePage {
             return "\"" + value + "\"";
         }
         return "concat('" + value.replace("'", "',\"'\",'") + "')";
+    }
+
+    protected void selectComboboxOption(By combobox, String optionText) {
+        WebElement field = waitForElementClickable(combobox);
+        if (field.getText().trim().equals(optionText)) {
+            return;
+        }
+        field.click();
+        By option = By.xpath(
+                "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(optionText) + "]"
+        );
+        waitForElementClickable(option).click();
+    }
+
+    protected boolean hasBrowserValidationMessage(By field) {
+        WebElement element = waitForElementVisible(field);
+        Object message = ((JavascriptExecutor) driver).executeScript(
+                "return arguments[0].validationMessage;", element
+        );
+        return message != null && !message.toString().isBlank();
+    }
+
+    protected boolean hasVisibleValidationError(By field, By validationErrorLocator) {
+        try {
+            WebElement element = waitForElementVisible(field);
+            List<WebElement> errors = element.findElements(validationErrorLocator);
+            if (errors.stream().anyMatch(WebElement::isDisplayed)) {
+                return true;
+            }
+            return driver.findElements(validationErrorLocator).stream().anyMatch(WebElement::isDisplayed);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    protected boolean hasVisibleGlobalValidationError(By validationErrorLocator) {
+        try {
+            waitForElementVisible(validationErrorLocator);
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 }

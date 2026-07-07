@@ -6,9 +6,6 @@ import org.aeonbits.owner.Config;
 @Config.Sources({"system:properties", "classpath:config.properties", "classpath:allure.properties"})
 public interface Configuration extends Config {
 
-    @Key("allure.results.directory")
-    String allureResultsDir();
-
     @Key("APP_BASE_URL")
     String baseUrl();
 

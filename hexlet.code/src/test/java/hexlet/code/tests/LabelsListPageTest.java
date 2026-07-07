@@ -10,12 +10,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LabelsListPageTest extends BasePageTest {
     private final List<String> namesToCleanup = new ArrayList<>();
@@ -38,7 +39,8 @@ class LabelsListPageTest extends BasePageTest {
                     listPage.deleteLabelByName(name);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             namesToCleanup.clear();
         }
@@ -60,7 +62,45 @@ class LabelsListPageTest extends BasePageTest {
     @Test
     @DisplayName("Наличие колонок в таблице меток")
     void checkLabelsListColumns() {
-        assertTrue(labelsListPage.hasColumnHeaders("Name", "Slug"));
+        assertTrue(labelsListPage.hasColumnHeaders("Id", "Name", "Created at"));
+    }
+
+    @Test
+    @DisplayName("Метки загружены в таблице")
+    void checkLabelsAreLoaded() {
+        assertAll(
+                () -> assertTrue(labelsListPage.isTableLoaded()),
+                () -> assertTrue(labelsListPage.getLabelsCount() > 0),
+                () -> assertTrue(labelsListPage.isLabelExists("critical")),
+                () -> assertTrue(labelsListPage.isLabelExists("task")),
+                () -> assertTrue(labelsListPage.isLabelExists("enhancement")),
+                () -> assertTrue(labelsListPage.isLabelExists("bug"))
+        );
+    }
+
+    @DisplayName("Предустановленные метки отображаются в таблице")
+    @ParameterizedTest
+    @ValueSource(strings = {"critical", "task", "enhancement", "bug"})
+    void checkSeedLabelExistsInTable(String labelName) {
+        assertTrue(labelsListPage.isLabelExists(labelName),
+                "seed label '" + labelName + "' should be visible in table");
+    }
+
+    @Test
+    @DisplayName("Предустановленные метки остаются в таблице после создания новой")
+    void checkSeedLabelsRemainAfterCreatingNewLabel() {
+        Label customLabel = RandomTestData.getLabel();
+        trackForCleanup(customLabel.getName());
+
+        labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(customLabel);
+
+        assertAll(
+                () -> assertTrue(labelsListPage.isLabelExists(customLabel.getName())),
+                () -> assertTrue(labelsListPage.isLabelExists("critical")),
+                () -> assertTrue(labelsListPage.isLabelExists("task")),
+                () -> assertTrue(labelsListPage.isLabelExists("enhancement")),
+                () -> assertTrue(labelsListPage.isLabelExists("bug"))
+        );
     }
 
     @Test
@@ -68,6 +108,20 @@ class LabelsListPageTest extends BasePageTest {
     void checkLabelsListRowContainsKeyFields() {
         assertTrue(labelsListPage.isTableLoaded());
         assertTrue(labelsListPage.isRowContainsKeyFields(0));
+    }
+
+    @Test
+    @DisplayName("Удаление метки из списка через таблицу")
+    void checkDeleteLabelFromTable() {
+        Label testLabel = RandomTestData.getLabel();
+
+        labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(testLabel);
+        assertTrue(labelsListPage.isLabelExists(testLabel.getName()));
+
+        assertTrue(labelsListPage.deleteLabelByName(testLabel.getName()));
+
+        labelsListPage = new SideBar(driver).getLabelsListPage();
+        assertTrue(labelsListPage.isLabelNotExists(testLabel.getName()));
     }
 
     @Test

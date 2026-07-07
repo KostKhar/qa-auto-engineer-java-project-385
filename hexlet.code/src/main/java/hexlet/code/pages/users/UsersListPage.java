@@ -1,36 +1,32 @@
 package hexlet.code.pages.users;
 
-import hexlet.code.components.Header;
 import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
-import hexlet.code.pages.BasePage;
+import hexlet.code.pages.AbstractListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class UsersListPage extends BasePage {
+public class UsersListPage extends AbstractListPage<User> {
+    private static final int ID_COLUMN_INDEX = 1;
     private static final int EMAIL_COLUMN_INDEX = 2;
     private static final int FIRSTNAME_COLUMN_INDEX = 3;
     private static final int LASTNAME_COLUMN_INDEX = 4;
-    private final Table<User> usersTable;
-    private final By createButton = By.xpath("//*[@aria-label='Create']");
+    private static final int CREATED_AT_COLUMN_INDEX = 5;
+
     private final By exportButton = By.xpath("//*[@aria-label='Export']");
-    private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
-    private final By selectAllCheckbox = By.xpath("//thead//input[@type='checkbox']");
-    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
-    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
-    private final By tableContainer = By.className("RaList-main");
     private final By searchInput = By.cssSelector("input.RaSearchInput-input");
-    private Header header;
 
     public UsersListPage(WebDriver driver) {
         super(driver);
-        initComponents();
+        initTable(createTable(driver));
+        waitForElementVisible(CREATE_BUTTON);
+    }
 
-        this.usersTable = new Table<>(driver, usersTableContainer(), row -> {
+    private static Table<User> createTable(WebDriver driver) {
+        return new Table<>(driver, waitForTableContainer(driver), row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
             return new User(
                     row,
@@ -43,37 +39,20 @@ public class UsersListPage extends BasePage {
         });
     }
 
-    @Override
-    protected void initComponents() {
-        header = new Header(driver);
-    }
-
-    public Header getHeader() {
-        return header;
-    }
-
-    public boolean isCreateButtonVisible() {
-        return waitForElementVisible(createButton).isDisplayed();
-    }
-
     public boolean isExportButtonVisible() {
         return waitForElementVisible(exportButton).isDisplayed();
     }
 
-    public boolean isTableLoaded() {
-        waitForElementVisible(tableContainer);
-        return !usersTable.getRows().isEmpty();
+    public int getUsersCount() {
+        return getRowCount();
     }
 
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        List<String> headers = usersTable.getHeaders();
-        return Arrays.stream(expectedHeaders)
-                .allMatch(expected -> headers.stream()
-                        .anyMatch(header -> header.equalsIgnoreCase(expected)));
+    public boolean isTableEmpty() {
+        return getUsersCount() == 0;
     }
 
     public User getUserAtRow(int rowIndex) {
-        return usersTable.getRowAsObject(rowIndex);
+        return table.getRowAsObject(rowIndex);
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {
@@ -83,17 +62,9 @@ public class UsersListPage extends BasePage {
                 && !user.getLastname().isBlank();
     }
 
-    private WebElement usersTableContainer() {
-        return driver.findElement(tableContainer);
-    }
-
     public UserPage clickCreateUser() {
-        waitForElementClickable(createButton).click();
+        waitForElementClickable(CREATE_BUTTON).click();
         return new UserPage(driver);
-    }
-
-    public Table<User> getTable() {
-        return usersTable;
     }
 
     public UserPage openUserByEmail(String email) {
@@ -111,12 +82,12 @@ public class UsersListPage extends BasePage {
     }
 
     private User findUserInTable(String email) {
-        return usersTable.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
+        return table.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
     }
 
     public User getUserByEmail(String email) {
         searchUser(email);
-        return usersTable.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
+        return table.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
     }
 
     public UsersListPage updateUserByEmail(String email, User userToUpdate) {
@@ -154,53 +125,48 @@ public class UsersListPage extends BasePage {
     }
 
     public void selectAllUsers() {
-        waitForElementClickable(selectAllCheckbox).click();
+        selectAllRows();
     }
 
     public void deleteSelectedUsers() {
-        waitForElementClickable(deleteButton).click();
-        waitForElementClickable(confirmDeleteButton).click();
-        waitForElementVisible(successDeletePopup);
+        deleteSelectedRows();
     }
 
-    public void searchByPrefix(String prefix) {
-        searchUser(prefix);
-    }
-
-    public void clearSearch() {
-        WebElement input = waitForElementVisible(searchInput);
-        input.clear();
-        waitForPageLoaded();
+    public String getUserId(int rowIndex) {
+        return table.getCellText(rowIndex, ID_COLUMN_INDEX);
     }
 
     public String getUserEmail(int rowIndex) {
-        return usersTable.getCellText(rowIndex, EMAIL_COLUMN_INDEX);
+        return table.getCellText(rowIndex, EMAIL_COLUMN_INDEX);
     }
 
     public String getUserFirstName(int rowIndex) {
-        return usersTable.getCellText(rowIndex, FIRSTNAME_COLUMN_INDEX);
+        return table.getCellText(rowIndex, FIRSTNAME_COLUMN_INDEX);
     }
 
     public String getUserLastName(int rowIndex) {
-        return usersTable.getCellText(rowIndex, LASTNAME_COLUMN_INDEX);
+        return table.getCellText(rowIndex, LASTNAME_COLUMN_INDEX);
+    }
+
+    public String getUserCreatedAt(int rowIndex) {
+        return table.getCellText(rowIndex, CREATED_AT_COLUMN_INDEX);
     }
 
     public boolean isUserExists(String email) {
-        if (usersTable.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
+        if (table.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
             return true;
         }
 
         searchUser(email);
-        return waitForCondition(driver -> usersTable.containsValueInColumn(EMAIL_COLUMN_INDEX, email));
+        return waitForCondition(driver -> table.containsValueInColumn(EMAIL_COLUMN_INDEX, email));
     }
 
     public boolean isUserNotExists(String email) {
-        if (usersTable.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
+        if (table.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
             return false;
         }
 
         searchUser(email);
-
         return findUserInTable(email) == null;
     }
 
@@ -211,7 +177,7 @@ public class UsersListPage extends BasePage {
             input.sendKeys(query);
             waitForPageLoaded();
         } catch (org.openqa.selenium.TimeoutException e) {
-            // search input is not available on this page — skip filtering
+            System.out.println("Timed out waiting for user search");
         }
     }
 }

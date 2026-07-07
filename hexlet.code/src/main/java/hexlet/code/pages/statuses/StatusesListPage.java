@@ -2,33 +2,25 @@ package hexlet.code.pages.statuses;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
-import hexlet.code.pages.BasePage;
+import hexlet.code.pages.AbstractListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class StatusesListPage extends BasePage {
+public class StatusesListPage extends AbstractListPage<Status> {
     private static final int NAME_COLUMN_INDEX = 2;
     private static final int SLUG_COLUMN_INDEX = 3;
 
-    private final Table<Status> statusesTable;
-
-    private final By createButton = By.xpath("//*[@aria-label='Create']");
-    private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
-    private final By selectAllCheckbox = By.xpath(
-            "//*[contains(@class, 'RaList-main')]//thead//span[contains(@class, 'MuiCheckbox-root')]"
-    );
-    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
-    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
-    private final By tableContainer = By.className("RaList-main");
-
     public StatusesListPage(WebDriver driver) {
         super(driver);
+        initTable(createTable(driver));
+        waitForElementVisible(CREATE_BUTTON);
+    }
 
-        this.statusesTable = new Table<>(driver, statusesTableContainer(), row -> {
+    private static Table<Status> createTable(WebDriver driver) {
+        return new Table<>(driver, waitForTableContainer(driver), row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
             String slug = cells.size() > SLUG_COLUMN_INDEX ? cells.get(SLUG_COLUMN_INDEX).getText().trim() : "";
             return new Status(
@@ -40,33 +32,22 @@ public class StatusesListPage extends BasePage {
         });
     }
 
-    private WebElement statusesTableContainer() {
-        return driver.findElement(tableContainer);
-    }
-
     public boolean isTableVisible() {
-        waitForElementVisible(tableContainer);
-        return true;
+        waitForElementVisible(CREATE_BUTTON);
+        return !driver.findElements(TABLE_CONTAINER).isEmpty()
+                || waitForElementVisible(LIST_ROOT).isDisplayed();
     }
 
-    public boolean isTableLoaded() {
-        waitForElementVisible(tableContainer);
-        return !statusesTable.getRows().isEmpty();
+    public int getStatusesCount() {
+        return getRowCount();
     }
 
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        List<String> headers = statusesTable.getHeaders();
-        return Arrays.stream(expectedHeaders)
-                .allMatch(expected -> headers.stream()
-                        .anyMatch(header -> header.equalsIgnoreCase(expected)));
-    }
-
-    public boolean isCreateButtonVisible() {
-        return waitForElementVisible(createButton).isDisplayed();
+    public boolean isTableEmpty() {
+        return getStatusesCount() == 0;
     }
 
     public StatusPage clickCreateStatus() {
-        waitForElementClickable(createButton).click();
+        waitForElementClickable(CREATE_BUTTON).click();
         return new StatusPage(driver);
     }
 
@@ -87,7 +68,7 @@ public class StatusesListPage extends BasePage {
     }
 
     private Status findStatusInTable(String name) {
-        return statusesTable.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
+        return table.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
     public Status getStatusByName(String name) {
@@ -95,31 +76,19 @@ public class StatusesListPage extends BasePage {
     }
 
     public boolean isStatusExists(String name) {
-        return statusesTable.containsValueInColumn(NAME_COLUMN_INDEX, name);
+        return table.containsValueInColumn(NAME_COLUMN_INDEX, name);
     }
 
     public boolean isStatusNotExists(String name) {
-        return statusesTable.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name) == null;
-    }
-
-    public boolean isStatusExistsBySlug(String slug) {
-        return statusesTable.containsValueInColumn(SLUG_COLUMN_INDEX, slug);
+        return !isStatusExists(name);
     }
 
     public boolean isStatusNotExistsBySlug(String slug) {
-        return !isStatusExistsBySlug(slug);
-    }
-
-    public String getStatusName(int rowIndex) {
-        return statusesTable.getCellText(rowIndex, NAME_COLUMN_INDEX);
-    }
-
-    public String getStatusSlug(int rowIndex) {
-        return statusesTable.getCellText(rowIndex, SLUG_COLUMN_INDEX);
+        return !table.containsValueInColumn(SLUG_COLUMN_INDEX, slug);
     }
 
     public Status getStatusAtRow(int rowIndex) {
-        return statusesTable.getRowAsObject(rowIndex);
+        return table.getRowAsObject(rowIndex);
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {
@@ -146,16 +115,10 @@ public class StatusesListPage extends BasePage {
     }
 
     public void selectAllStatuses() {
-        waitForElementClickable(selectAllCheckbox).click();
+        selectAllRows();
     }
 
     public void deleteSelectedStatuses() {
-        waitForElementClickable(deleteButton).click();
-        waitForElementClickable(confirmDeleteButton).click();
-        waitForElementVisible(successDeletePopup);
-    }
-
-    public int getTableRowCount() {
-        return statusesTable.getRows().size();
+        deleteSelectedRows();
     }
 }

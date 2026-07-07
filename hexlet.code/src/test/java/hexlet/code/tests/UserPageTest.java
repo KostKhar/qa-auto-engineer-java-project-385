@@ -38,7 +38,8 @@ class UserPageTest extends BasePageTest {
                     listPage.deleteUserByEmail(email);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             emailsToCleanup.clear();
         }
@@ -84,7 +85,7 @@ class UserPageTest extends BasePageTest {
 
         createUserOnList(testUser);
 
-        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail()).openEditForm();
+        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail());
 
         assertEquals(testUser.getEmail(), userPage.getEmailValue());
         assertEquals(testUser.getFirstname(), userPage.getFirstNameValue());
@@ -134,7 +135,7 @@ class UserPageTest extends BasePageTest {
 
         createUserOnList(testUser);
 
-        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail()).openEditForm();
+        UserPage userPage = usersListPage.openUserByEmail(testUser.getEmail());
         userPage.fillUserForm(new User("invalid-email", testUser.getFirstname(), testUser.getLastname()));
         userPage.submitFormWithoutWaitingForSuccess();
 

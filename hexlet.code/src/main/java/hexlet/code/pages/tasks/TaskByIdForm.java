@@ -35,11 +35,4 @@ public class TaskByIdForm extends BasePage {
         return waitForElementVisible(title).isDisplayed();
     }
 
-    public boolean isDescriptionVisible() {
-        return waitForElementVisible(description).isDisplayed();
-    }
-
-    public boolean isAssigneeVisible() {
-        return waitForElementVisible(assigneeField).isDisplayed();
-    }
 }

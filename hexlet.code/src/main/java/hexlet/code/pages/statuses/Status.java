@@ -16,8 +16,8 @@ public class Status {
     public Status(WebElement row, String id, String name, String slug) {
         this.row = row;
         this.id = id;
-        this.name = name;
         this.slug = slug;
+        this.name = name;
     }
 
     public Status(String name, String slug) {

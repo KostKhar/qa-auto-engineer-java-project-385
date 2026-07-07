@@ -2,20 +2,18 @@ package hexlet.code.pages.statuses;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.pages.BasePage;
-import org.openqa.selenium.*;
-
-import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class StatusPage extends BasePage {
     private final By nameField = By.xpath("//*[@name='name']");
     private final By slugField = By.xpath("//*[@name='slug']");
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
     private final By editButton = By.xpath("//*[@aria-label='Edit']");
-    private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
-    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
-    private final By successCreatePopup = By.xpath("//*[contains(text(), 'Element created')]");
-    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'Element updated')]");
-    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
+    private final By successCreatePopup = By.xpath("//*[contains(text(), 'created')]");
+    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'updated')]");
     private final By validationError = By.xpath(
             "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
     );
@@ -65,13 +63,6 @@ public class StatusPage extends BasePage {
         waitForElementClickable(saveButton).click();
     }
 
-    public boolean deleteStatus() {
-        waitForElementClickable(deleteButton).click();
-        waitForElementClickable(confirmDeleteButton).click();
-        waitForElementVisible(successDeletePopup);
-        return true;
-    }
-
     public String getNameValue() {
         return waitForElementVisible(nameField).getAttribute("value");
     }
@@ -99,49 +90,17 @@ public class StatusPage extends BasePage {
     }
 
     public boolean isNameValidationErrorVisible() {
-        return hasBrowserValidationMessage(nameField) || hasVisibleValidationError(nameField);
+        return hasBrowserValidationMessage(nameField) || hasVisibleValidationError(nameField, validationError);
     }
 
     public boolean isSlugValidationErrorVisible() {
-        return hasBrowserValidationMessage(slugField) || hasVisibleValidationError(slugField);
+        return hasBrowserValidationMessage(slugField) || hasVisibleValidationError(slugField, validationError);
     }
 
     public boolean isRequiredValidationErrorVisible() {
         if (hasBrowserValidationMessage(nameField) || hasBrowserValidationMessage(slugField)) {
             return true;
         }
-
-        try {
-            waitForElementVisible(requiredValidationError);
-            return true;
-        } catch (TimeoutException e) {
-            return false;
-        }
-    }
-
-    private boolean hasBrowserValidationMessage(By field) {
-        WebElement element = waitForElementVisible(field);
-        Object message = ((JavascriptExecutor) driver).executeScript(
-                "return arguments[0].validationMessage;", element
-        );
-        return message != null && !message.toString().isBlank();
-    }
-
-    private boolean hasVisibleValidationError(By field) {
-        try {
-            WebElement element = waitForElementVisible(field);
-            List<WebElement> errors = element.findElements(By.xpath(
-                    "./ancestor::div[contains(@class, 'MuiFormControl-root')]"
-                            + "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
-            ));
-            if (errors.stream().anyMatch(WebElement::isDisplayed)) {
-                return true;
-            }
-
-            List<WebElement> globalErrors = driver.findElements(validationError);
-            return globalErrors.stream().anyMatch(WebElement::isDisplayed);
-        } catch (Exception e) {
-            return false;
-        }
+        return hasVisibleGlobalValidationError(requiredValidationError);
     }
 }

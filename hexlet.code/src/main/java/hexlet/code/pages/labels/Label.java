@@ -11,18 +11,17 @@ public class Label {
     private WebElement row;
     private String id;
     private String name;
-    private String slug;
+    private String createdAt;
 
-    public Label(WebElement row, String id, String name, String slug) {
+    public Label(WebElement row, String id, String name, String createdAt) {
         this.row = row;
         this.id = id;
         this.name = name;
-        this.slug = slug;
+        this.createdAt = createdAt;
     }
 
-    public Label(String name, String slug) {
+    public Label(String name) {
         this.name = name;
-        this.slug = slug;
     }
 
     public void clickLabel() {

@@ -1,6 +1,7 @@
 plugins {
     java
     id("io.qameta.allure") version "2.11.2"
+    id("org.sonarqube") version "7.3.1.8318"
 }
 
 repositories {
@@ -16,30 +17,40 @@ val seleniumVersion = "4.40.0"
 val chromeVersion = "149"
 val allureVersion = "2.35.2"
 val lombokVersion = "1.18.38"
+val junit5 = "5.8.1"
+val faker = "1.0.2"
+val owner = "1.0.12"
+val assertj = "1.0.12"
+val webManager = "5.9.0"
 
 dependencies {
+    annotationProcessor ("org.projectlombok:lombok:$lombokVersion")
+
+    implementation ("org.projectlombok:lombok:$lombokVersion")
     implementation("org.seleniumhq.selenium:selenium-java:$seleniumVersion")
     implementation("org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion")
 
-    implementation("org.aeonbits.owner:owner:1.0.12")
-
-    implementation("org.slf4j:slf4j-api:2.0.13")
-    implementation("org.slf4j:slf4j-simple:2.0.13")
+    implementation("org.aeonbits.owner:owner:$owner")
     implementation("io.qameta.allure:allure-java-commons:$allureVersion")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-    testImplementation("org.assertj:assertj-core:3.25.1")
-    testImplementation("io.github.bonigarcia:webdrivermanager:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junit5")
+    testImplementation("org.assertj:assertj-core:$assertj")
+    testImplementation("io.github.bonigarcia:webdrivermanager:$webManager")
     testImplementation("io.qameta.allure:allure-junit5:$allureVersion")
+    testImplementation ("com.github.javafaker:javafaker:$faker")
 
-     implementation ("org.projectlombok:lombok:$lombokVersion")
-     annotationProcessor ("org.projectlombok:lombok:$lombokVersion")
-     testImplementation ("org.projectlombok:lombok:$lombokVersion")
+  testImplementation ("org.projectlombok:lombok:$lombokVersion")
      testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
-
-     testImplementation ("com.github.javafaker:javafaker:1.0.2")
  }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+
+sonar {
+  properties {
+    property("sonar.projectKey", "KostKhar_qa-auto-engineer-java-project-385")
+    property("sonar.organization", "kostkhar")
+  }
 }

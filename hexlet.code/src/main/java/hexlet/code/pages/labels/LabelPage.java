@@ -2,24 +2,23 @@ package hexlet.code.pages.labels;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.pages.BasePage;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.List;
+import java.time.Duration;
+
+import static hexlet.code.config.ConfigurationManager.config;
 
 public class LabelPage extends BasePage {
     private final By nameField = By.xpath("//*[@name='name']");
-    private final By slugField = By.xpath("//*[@name='slug']");
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
-    private final By editButton = By.xpath("//*[@aria-label='Edit']");
     private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
-    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
-    private final By successCreatePopup = By.xpath("//*[contains(text(), 'Element created')]");
-    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'Element updated')]");
-    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
-    private final By validationError = By.xpath(
-            "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
-    );
-    private final By requiredValidationError = By.xpath("//*[text()='Required']");
+    private final By successCreatePopup = By.xpath("//*[contains(text(), 'created')]");
+    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'updated')]");
+    private final By successDeletePopup = By.xpath("//*[contains(text(), 'deleted')]");
+    private final By validationError = By.xpath("//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]");
 
     public LabelPage(WebDriver driver) {
         super(driver);
@@ -27,7 +26,6 @@ public class LabelPage extends BasePage {
 
     public void fillLabelForm(Label label) {
         waitForElementClearAndSendKeys(nameField, label.getName());
-        waitForElementClearAndSendKeys(slugField, label.getSlug());
     }
 
     public LabelsListPage createLabelAndReturnToList(Label label) {
@@ -37,23 +35,6 @@ public class LabelPage extends BasePage {
         return new SideBar(driver).getLabelsListPage();
     }
 
-    public LabelPage openEditForm() {
-        if (isEditFormOpen()) {
-            return this;
-        }
-        waitForElementClickable(editButton).click();
-        waitForElementVisible(nameField);
-        return this;
-    }
-
-    private boolean isEditFormOpen() {
-        try {
-            WebElement field = waitForElementVisible(nameField);
-            return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
-        } catch (TimeoutException e) {
-            return false;
-        }
-    }
 
     public boolean updateLabel(Label label) {
         fillLabelForm(label);
@@ -67,7 +48,6 @@ public class LabelPage extends BasePage {
 
     public boolean deleteLabel() {
         waitForElementClickable(deleteButton).click();
-        waitForElementClickable(confirmDeleteButton).click();
         waitForElementVisible(successDeletePopup);
         return true;
     }
@@ -76,72 +56,27 @@ public class LabelPage extends BasePage {
         return waitForElementVisible(nameField).getAttribute("value");
     }
 
-    public String getSlugValue() {
-        return waitForElementVisible(slugField).getAttribute("value");
-    }
 
     public boolean isNameFieldVisible() {
         return waitForElementVisible(nameField).isDisplayed();
-    }
-
-    public boolean isSlugFieldVisible() {
-        return waitForElementVisible(slugField).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
         return waitForElementVisible(saveButton).isDisplayed();
     }
 
-    public boolean hasValidationError() {
-        return isNameValidationErrorVisible()
-                || isSlugValidationErrorVisible()
-                || isRequiredValidationErrorVisible();
+    public boolean validationErrorIsDisplayed() {
+        return waitForElementVisible(validationError).isDisplayed();
     }
 
-    public boolean isNameValidationErrorVisible() {
-        return hasBrowserValidationMessage(nameField) || hasVisibleValidationError(nameField);
-    }
-
-    public boolean isSlugValidationErrorVisible() {
-        return hasBrowserValidationMessage(slugField) || hasVisibleValidationError(slugField);
-    }
-
-    public boolean isRequiredValidationErrorVisible() {
-        if (hasBrowserValidationMessage(nameField) || hasBrowserValidationMessage(slugField)) {
-            return true;
-        }
-
+    public boolean isSaveButtonNotClickable() {
         try {
-            waitForElementVisible(requiredValidationError);
-            return true;
-        } catch (TimeoutException e) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
+            wait.until(ExpectedConditions.elementToBeClickable(saveButton));
             return false;
-        }
-    }
-
-    private boolean hasBrowserValidationMessage(By field) {
-        WebElement element = waitForElementVisible(field);
-        Object message = ((JavascriptExecutor) driver).executeScript(
-                "return arguments[0].validationMessage;", element
-        );
-        return message != null && !message.toString().isBlank();
-    }
-
-    private boolean hasVisibleValidationError(By field) {
-        try {
-            WebElement element = waitForElementVisible(field);
-            List<WebElement> errors = element.findElements(By.xpath(
-                    "./ancestor::div[contains(@class, 'MuiFormControl-root')]"
-                            + "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
-            ));
-            if (errors.stream().anyMatch(WebElement::isDisplayed)) {
-                return true;
-            }
-
-            List<WebElement> globalErrors = driver.findElements(validationError);
-            return globalErrors.stream().anyMatch(WebElement::isDisplayed);
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
+
 }

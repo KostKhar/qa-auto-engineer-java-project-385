@@ -38,7 +38,8 @@ class LabelPageTest extends BasePageTest {
                     listPage.deleteLabelByName(name);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             namesToCleanup.clear();
         }
@@ -61,7 +62,6 @@ class LabelPageTest extends BasePageTest {
         LabelPage labelPage = labelsListPage.clickCreateLabel();
 
         assertTrue(labelPage.isNameFieldVisible());
-        assertTrue(labelPage.isSlugFieldVisible());
         assertTrue(labelPage.isSaveButtonVisible());
     }
 
@@ -75,7 +75,6 @@ class LabelPageTest extends BasePageTest {
 
         Label labelInList = labelsListPage.getLabelByName(testLabel.getName());
         assertEquals(testLabel.getName(), labelInList.getName());
-        assertEquals(testLabel.getSlug(), labelInList.getSlug());
     }
 
     @Test
@@ -86,10 +85,9 @@ class LabelPageTest extends BasePageTest {
 
         createLabelOnList(testLabel);
 
-        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName()).openEditForm();
+        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName());
 
         assertEquals(testLabel.getName(), labelPage.getNameValue());
-        assertEquals(testLabel.getSlug(), labelPage.getSlugValue());
     }
 
     @Test
@@ -107,7 +105,6 @@ class LabelPageTest extends BasePageTest {
 
         Label labelInList = labelsListPage.getLabelByName(updatedLabel.getName());
         assertEquals(updatedLabel.getName(), labelInList.getName());
-        assertEquals(updatedLabel.getSlug(), labelInList.getSlug());
         assertTrue(labelsListPage.isLabelNotExists(testLabel.getName()));
     }
 
@@ -115,15 +112,11 @@ class LabelPageTest extends BasePageTest {
     @DisplayName("Валидация пустого имени при создании метки")
     void checkEmptyNameOnCreate() {
         LabelPage labelPage = labelsListPage.clickCreateLabel();
-        Label invalidLabel = new Label("", "valid-slug");
+        Label invalidLabel = new Label("");
+        trackForCleanup(invalidLabel.getName());
 
         labelPage.fillLabelForm(invalidLabel);
-        labelPage.submitFormWithoutWaitingForSuccess();
-
-        assertTrue(labelPage.hasValidationError());
-
-        labelsListPage = new SideBar(driver).getLabelsListPage();
-        assertTrue(labelsListPage.isLabelNotExistsBySlug("valid-slug"));
+        assertTrue(labelPage.isSaveButtonNotClickable());
     }
 
     @Test
@@ -134,14 +127,15 @@ class LabelPageTest extends BasePageTest {
 
         createLabelOnList(testLabel);
 
-        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName()).openEditForm();
-        labelPage.fillLabelForm(new Label("", testLabel.getSlug()));
+        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName());
+        labelPage.fillLabelForm(new Label(""));
         labelPage.submitFormWithoutWaitingForSuccess();
 
-        assertTrue(labelPage.hasValidationError());
+        assertTrue(labelPage.validationErrorIsDisplayed());
 
         labelsListPage = new SideBar(driver).getLabelsListPage();
-        assertTrue(labelsListPage.isLabelExists(testLabel.getName()));
+        assertTrue(labelsListPage.isLabelExists(testLabel.getName()),
+                "label should remain unchanged after failed update");
     }
 
     @Test
@@ -152,7 +146,9 @@ class LabelPageTest extends BasePageTest {
         createLabelOnList(testLabel);
         assertTrue(labelsListPage.isLabelExists(testLabel.getName()));
 
-        assertTrue(labelsListPage.deleteLabelByName(testLabel.getName()));
+        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName());
+
+        labelPage.deleteLabel();
 
         labelsListPage = new SideBar(driver).getLabelsListPage();
         assertTrue(labelsListPage.isLabelNotExists(testLabel.getName()));

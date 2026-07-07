@@ -3,27 +3,22 @@ package hexlet.code.pages.tasks;
 import hexlet.code.components.SideBar;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 
 import java.util.List;
 
 public class TaskByIdPage extends BasePage {
     private final By titleField = By.xpath("//*[@name='title']");
     private final By contentField = By.xpath("//*[@name='content']");
-    private final By assigneeCombobox = By.xpath(
-            "(//*[@name='assignee_id']/ancestor::div[contains(@class,'MuiFormControl-root')]//div[@role='combobox'])[1]"
-    );
-    private final By statusCombobox = By.xpath(
-            "(//*[@name='status_id']/ancestor::div[contains(@class,'MuiFormControl-root')]//div[@role='combobox'])[1]"
-    );
-    private final By labelCombobox = By.xpath(
-            "//*[contains(@class,'RaSelectArrayInput')]//div[@role='combobox']"
-    );
+    private final By assigneeCombobox = By.xpath("(//*[@name='assignee_id']/ancestor::div[contains(@class,'MuiFormControl-root')]//div[@role='combobox'])[1]");
+    private final By statusCombobox = By.xpath("(//*[@name='status_id']/ancestor::div[contains(@class,'MuiFormControl-root')]//div[@role='combobox'])[1]");
+    private final By labelCombobox = By.xpath(".//*/div[@data-testid='selectArray']");
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
     private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
     private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
-    private final By successCreatePopup = By.xpath("//*[contains(text(), 'Element created')]");
-    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'Element updated')]");
-    private final By successDeletePopup = By.xpath("//*[contains(text(), 'Element deleted')]");
+    private final By successCreatePopup = By.xpath("//*[contains(text(), 'created')]");
+    private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'updated')]");
+    private final By successDeletePopup = By.xpath("//*[contains(text(), 'deleted')]");
     private final By validationError = By.xpath(
             "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
     );
@@ -129,73 +124,53 @@ public class TaskByIdPage extends BasePage {
         return isTitleValidationErrorVisible()
                 || isAssigneeValidationErrorVisible()
                 || isStatusValidationErrorVisible()
-                || hasVisibleGlobalValidationError();
+                || hasVisibleGlobalValidationError(validationError);
     }
 
     public boolean isTitleValidationErrorVisible() {
-        return hasBrowserValidationMessage(titleField) || hasVisibleValidationError(titleField);
+        return hasBrowserValidationMessage(titleField) || hasVisibleValidationError(titleField, validationError);
     }
 
     public boolean isAssigneeValidationErrorVisible() {
-        return hasVisibleValidationError(assigneeCombobox);
+        return hasVisibleValidationError(assigneeCombobox, validationError);
     }
 
     public boolean isStatusValidationErrorVisible() {
-        return hasVisibleValidationError(statusCombobox);
+        return hasVisibleValidationError(statusCombobox, validationError);
     }
 
-    private void selectComboboxOption(By combobox, String optionText) {
-        WebElement field = waitForElementClickable(combobox);
-        if (field.getText().trim().equals(optionText)) {
-            return;
-        }
-        field.click();
-        By option = By.xpath(
-                "//*[@role='listbox']//*[@role='option'][normalize-space(.)="
-                        + xpathLiteral(optionText) + "]"
-        );
-        waitForElementClickable(option).click();
+    public List<String> getLabels() {
+        WebElement labelsField = waitForElementVisible(labelCombobox)
+                .findElement(By.xpath("./ancestor::div[contains(@class,'MuiFormControl-root')]"));
+        return labelsField.findElements(By.xpath(".//*[contains(@class,'MuiChip-label')]")).stream()
+                .map(element -> element.getText().trim())
+                .filter(text -> !text.isBlank())
+                .toList();
     }
 
     private void selectLabels(List<String> labels) {
+        By listbox = By.xpath("//*[@role='listbox']");
+        waitForElementClickable(labelCombobox).click();
+        waitForElementVisible(listbox);
         for (String label : labels) {
-            WebElement field = waitForElementClickable(labelCombobox);
-            field.click();
-            By option = By.xpath(
-                    "//*[@role='listbox']//*[@role='option'][contains(normalize-space(.),"
-                            + xpathLiteral(label.trim()) + ")]"
-            );
+            By option = By.xpath("//*[@role='listbox']//*[@role='option'][contains(normalize-space(.),"
+                    + xpathLiteral(label.trim()) + ")]");
             waitForElementClickable(option).click();
         }
+        closeOpenListbox(listbox);
     }
 
-    private boolean hasBrowserValidationMessage(By field) {
-        WebElement element = waitForElementVisible(field);
-        Object message = ((JavascriptExecutor) driver).executeScript(
-                "return arguments[0].validationMessage;", element
-        );
-        return message != null && !message.toString().isBlank();
-    }
-
-    private boolean hasVisibleValidationError(By field) {
+    private void closeOpenListbox(By listbox) {
+        new Actions(driver).sendKeys(Keys.ESCAPE).perform();
         try {
-            WebElement element = waitForElementVisible(field);
-            List<WebElement> errors = element.findElements(By.xpath(
-                    "./ancestor::div[contains(@class, 'MuiFormControl-root')]"
-                            + "//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]"
-            ));
-            return errors.stream().anyMatch(WebElement::isDisplayed);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean hasVisibleGlobalValidationError() {
-        try {
-            waitForElementVisible(validationError);
-            return true;
+            waitForElementInvisible(listbox);
         } catch (TimeoutException e) {
-            return false;
+            List<WebElement> backdrops = driver.findElements(
+                    By.xpath("//*[contains(@class,'MuiBackdrop-root')]"));
+            if (!backdrops.isEmpty()) {
+                backdrops.get(0).click();
+            }
+            waitForElementInvisible(listbox);
         }
     }
 }

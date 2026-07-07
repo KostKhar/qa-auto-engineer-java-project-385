@@ -2,6 +2,7 @@ package hexlet.code.pages.tasks;
 
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -9,8 +10,6 @@ import org.openqa.selenium.interactions.Actions;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-
-import static hexlet.code.config.ConfigurationManager.config;
 
 public class TasksListPage extends BasePage {
     private final By assigneeFilter = By.xpath(
@@ -24,6 +23,7 @@ public class TasksListPage extends BasePage {
     );
 
     private final By createButton = By.xpath("//*[@data-testid='AddIcon']");
+    private final By showButton = By.xpath(".//*[@data-testid='RemoveRedEyeIcon']");
     private final By exportButton = By.xpath("//*[@data-testid='GetAppIcon']");
     private final By columnTitle = By.xpath("//*[contains(@class,'MuiTypography-subtitle1')]");
     private final By taskTitle = By.xpath("//*[contains(@class,'MuiTypography-h5')]");
@@ -74,12 +74,12 @@ public class TasksListPage extends BasePage {
     }
 
     public TaskByIdForm openTaskShowByTitle(String title) {
-        requireTaskCardElement(title).findElement(By.xpath(".//*[@data-testid='RemoveRedEyeIcon']")).click();
+        requireTaskCardElement(title).findElement(showButton).click();
         return new TaskByIdForm(driver);
     }
 
     public TaskByIdPage openTaskEditByTitle(String title) {
-        requireTaskCardElement(title).findElement(By.xpath(".//*[@data-testid='CreateIcon']")).click();
+        waitForElementClickable(editButtonByTitle(title)).click();
         return new TaskByIdPage(driver);
     }
 
@@ -92,7 +92,7 @@ public class TasksListPage extends BasePage {
     }
 
     public boolean isTaskNotExists(String title) {
-        return findTaskCardElement(title) == null;
+        return !isTaskExists(title);
     }
 
     public boolean isTaskInColumn(String title, String columnName) {
@@ -115,37 +115,40 @@ public class TasksListPage extends BasePage {
         selectFilterOption(statusFilter, statusName);
     }
 
-    public void filterByLabel(String labelName) {
-        selectFilterOption(labelFilter, labelName);
+    public void filterByLabel(List<String> labelNames) {
+        if (labelNames == null || labelNames.isEmpty()) {
+            return;
+        }
+        for (String labelName : labelNames) {
+            waitForElementClickable(labelFilter).click();
+            By option = By.xpath(
+                    "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(labelName) + "]"
+            );
+            waitForElementClickable(option).click();
+        }
+        waitForPageLoaded();
     }
 
-    public void clearFilters() {
-        driver.navigate().to(config().baseUrl() + "tasks");
-        waitForPageLoaded();
-        waitForElementVisible(columnTitle);
+    public void filterByLabel(String labelName) {
+        filterByLabel(List.of(labelName));
     }
 
     public boolean waitUntilTaskHidden(String title) {
         return waitForCondition(driver -> !isTaskExists(title));
     }
 
-    public boolean waitUntilTaskVisible(String title) {
-        return waitForCondition(driver -> isTaskExists(title));
-    }
-
-    public TasksListPage moveTaskToColumnByDrag(String title, String targetColumnName) {
+    public void moveTaskToColumnByDrag(String title, String targetColumnName) {
         WebElement sourceCard = requireTaskCardElement(title);
         WebElement targetColumn = findColumnContent(targetColumnName);
 
         new Actions(driver)
                 .clickAndHold(sourceCard)
-                .pause(Duration.ofMillis(400))
+                .moveByOffset(10, 0)
                 .moveToElement(targetColumn, 10, 100)
                 .pause(Duration.ofMillis(400))
                 .release()
                 .perform();
-        waitForPageLoaded();
-        return this;
+        waitForCondition(driver -> isTaskInColumn(title, targetColumnName));
     }
 
     public TasksListPage moveTaskToStatusByEdit(String title, String newStatusName) {
@@ -155,6 +158,14 @@ public class TasksListPage extends BasePage {
 
     public void deleteTaskByTitle(String title) {
         openTaskEditByTitle(title).deleteTask();
+    }
+
+    private By editButtonByTitle(String title) {
+        return By.xpath(
+                "//*[contains(@class,'MuiTypography-h5') and normalize-space(text())="
+                        + xpathLiteral(title)
+                        + "]/ancestor::div[contains(@class,'MuiCard-root')]//*[@data-testid='CreateIcon']"
+        );
     }
 
     private WebElement requireTaskCardElement(String title) {
@@ -172,7 +183,7 @@ public class TasksListPage extends BasePage {
                             + xpathLiteral(title)
                             + "]/ancestor::div[contains(@class,'MuiCard-root')]"
             ));
-        } catch (org.openqa.selenium.NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             return null;
         }
     }
@@ -185,11 +196,7 @@ public class TasksListPage extends BasePage {
     }
 
     private void selectFilterOption(By filterCombobox, String optionText) {
-        waitForElementClickable(filterCombobox).click();
-        By option = By.xpath(
-                "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(optionText) + "]"
-        );
-        waitForElementClickable(option).click();
+        selectComboboxOption(filterCombobox, optionText);
         waitForPageLoaded();
     }
 }

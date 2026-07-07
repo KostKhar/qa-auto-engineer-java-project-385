@@ -7,7 +7,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 import static hexlet.code.config.ConfigurationManager.config;
@@ -28,7 +27,11 @@ public class Table<T> {
     }
 
     public List<WebElement> getRows() {
-        WebElement tbody = tableContainer.findElement(TABLE_BODY);
+        List<WebElement> tbodies = tableContainer.findElements(TABLE_BODY);
+        if (tbodies.isEmpty()) {
+            return List.of();
+        }
+        WebElement tbody = tbodies.get(0);
         wait.until(ExpectedConditions.visibilityOf(tbody));
         return tableContainer.findElements(By.xpath(".//tbody//tr"));
     }
@@ -78,7 +81,6 @@ public class Table<T> {
 
         return null;
     }
-
 
 
     public T getRowAsObject(int index) {
