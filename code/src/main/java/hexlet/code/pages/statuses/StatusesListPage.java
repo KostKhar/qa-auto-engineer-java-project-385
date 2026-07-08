@@ -96,7 +96,7 @@ public class StatusesListPage extends AbstractListPage<Status> {
         return getTable().getRowAsObject(rowIndex);
     }
 
-    public boolean isRowContainsKeyFields(int rowIndex) {
+    public boolean isRowContainsKeyField(int rowIndex) {
         Status status = getStatusAtRow(rowIndex);
         return !status.getName().isBlank() && !status.getSlug().isBlank();
     }

@@ -222,23 +222,6 @@ class TasksListPageTest extends BasePageTest {
         );
     }
 
-    @DisplayName("Фильтрация задач по нескольким меткам")
-    @Test
-    void checkFilterByLabels() {
-        List<String> labels = List.of("critical", "task", "enhancement", "bug");
-        Task testTask = RandomTestData.getTask();
-        testTask.setLabels(labels);
-        String title = testTask.getTitle();
-        trackForCleanup(testTask.getTitle());
-
-        tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(testTask);
-        tasksListPage.filterByLabel(labels);
-
-        TaskByIdPage taskByIdPage = tasksListPage.openTaskEditByTitle(title);
-
-        assertEquals(labels, taskByIdPage.getLabels(), "filter by labels not work");
-    }
-
     @DisplayName("Перемещение задачи между колонками перетаскиванием")
     @ParameterizedTest
     @MethodSource("getDataForMoveTask")

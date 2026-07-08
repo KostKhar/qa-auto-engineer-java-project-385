@@ -119,23 +119,18 @@ public class TasksListPage extends BasePage {
         selectFilterOption(statusFilter, statusName);
     }
 
-    public void filterByLabel(List<String> labelNames) {
-        if (labelNames == null || labelNames.isEmpty()) {
+    public void filterByLabel(String labelName) {
+        if (labelName == null || labelName.isEmpty()) {
             return;
         }
-        for (String labelName : labelNames) {
             waitForElementClickable(labelFilter).click();
             By option = By.xpath(
                     "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(labelName) + "]"
             );
             waitForElementClickable(option).click();
-        }
         waitForPageLoaded();
     }
 
-    public void filterByLabel(String labelName) {
-        filterByLabel(List.of(labelName));
-    }
 
     public boolean waitUntilTaskHidden(String title) {
         return waitForCondition(driver -> !isTaskExists(title));

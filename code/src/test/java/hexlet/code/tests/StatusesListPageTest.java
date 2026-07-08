@@ -76,8 +76,15 @@ class StatusesListPageTest extends BasePageTest {
     @Test
     @DisplayName("Строка таблицы статусов содержит ключевые поля")
     void checkStatusesListRowContainsKeyFields() {
-        assertTrue(statusesListPage.isTableLoaded());
-        assertTrue(statusesListPage.isRowContainsKeyFields(0));
+        assertAll(
+                ()-> assertTrue(statusesListPage.isTableVisible()),
+                ()-> assertTrue(statusesListPage.isRowContainsKeyField(0)),
+                ()-> assertTrue(statusesListPage.isRowContainsKeyField(1)),
+                ()-> assertTrue(statusesListPage.isRowContainsKeyField(2)),
+                ()-> assertTrue(statusesListPage.isRowContainsKeyField(3)),
+                ()-> assertTrue(statusesListPage.isCreateButtonVisible())
+        );
+
     }
 
     @Test
