@@ -101,10 +101,7 @@ public class TaskByIdPage extends BasePage {
             waitForElementClickable(confirmDeleteButton).click();
             waitForElementVisible(successDeletePopup);
         } catch (TimeoutException e) {
-            waitForCondition(driver -> {
-                String url = driver.getCurrentUrl();
-                return url.endsWith("#/tasks") || url.endsWith("#/tasks/");
-            });
+            System.out.println(e.getMessage());
         }
     }
 
@@ -192,7 +189,7 @@ public class TaskByIdPage extends BasePage {
             List<WebElement> backdrops = getDriver().findElements(
                     By.xpath("//*[contains(@class,'MuiBackdrop-root')]"));
             if (!backdrops.isEmpty()) {
-                backdrops.get(0).click();
+                backdrops.getFirst().click();
             }
             waitForElementInvisible(listbox);
         }

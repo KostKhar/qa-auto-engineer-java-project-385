@@ -12,7 +12,7 @@ public class UserPage extends BasePage {
 
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
 
-    private String valueAttribute = "value";
+    private static final String VALUE_ATTRIBUTE = "value";
 
     private final By successCreatePopup = By.xpath("//*[contains(text(), 'Element created')]");
     private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'Element updated')]");
@@ -36,11 +36,10 @@ public class UserPage extends BasePage {
         waitForElementClearAndSendKeys(lastNameField, user.getLastname());
     }
 
-    public boolean createUser(User user) {
+    public void createUser(User user) {
         fillUserForm(user);
         waitForElementClickable(saveButton).click();
         waitForElementVisible(successCreatePopup);
-        return true;
     }
 
     public UserPage openEditForm() {
@@ -59,15 +58,15 @@ public class UserPage extends BasePage {
     }
 
     public String getEmailValue() {
-        return waitForElementVisible(emailField).getAttribute(valueAttribute);
+        return waitForElementVisible(emailField).getAttribute(VALUE_ATTRIBUTE);
     }
 
     public String getFirstNameValue() {
-        return waitForElementVisible(firstNameField).getAttribute(valueAttribute);
+        return waitForElementVisible(firstNameField).getAttribute(VALUE_ATTRIBUTE);
     }
 
     public String getLastNameValue() {
-        return waitForElementVisible(lastNameField).getAttribute(valueAttribute);
+        return waitForElementVisible(lastNameField).getAttribute(VALUE_ATTRIBUTE);
     }
 
     public boolean isEmailFieldVisible() {

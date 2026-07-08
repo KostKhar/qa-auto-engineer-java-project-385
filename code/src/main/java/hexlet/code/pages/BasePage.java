@@ -50,8 +50,8 @@ public abstract class BasePage {
                 () -> getWait().until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
-    protected boolean waitForElementInvisible(By locator) {
-        return Allure.step("Ожидание исчезновения элемента",
+    protected void waitForElementInvisible(By locator) {
+         Allure.step("Ожидание исчезновения элемента",
                 () -> getWait().until(ExpectedConditions.invisibilityOfElementLocated(locator)));
     }
 

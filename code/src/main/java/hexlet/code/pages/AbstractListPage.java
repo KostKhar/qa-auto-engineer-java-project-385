@@ -53,17 +53,6 @@ public abstract class AbstractListPage<T> extends BasePage {
         this.table = table;
     }
 
-    protected WebElement resolveTableContainer() {
-        List<WebElement> containers = getDriver().findElements(TABLE_CONTAINER);
-        if (!containers.isEmpty()) {
-            return waitForElementVisible(TABLE_CONTAINER);
-        }
-        return waitForElementVisible(LIST_ROOT);
-    }
-
-    protected WebElement findTableContainer() {
-        return waitForElementVisible(TABLE_CONTAINER);
-    }
 
     public boolean hasColumnHeaders(String... expectedHeaders) {
         List<String> headers = getTable().getHeaders();
