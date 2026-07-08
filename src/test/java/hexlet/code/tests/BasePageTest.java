@@ -14,6 +14,11 @@ import static hexlet.code.configure.ConfigurationManager.config;
 abstract class BasePageTest {
     protected WebDriver driver;
 
+    @BeforeAll
+    static void setupClass() {
+        WebDriverManager.chromedriver().setup();
+    }
+
     @BeforeEach
     void startBrowser() {
         Configuration configuration = config();
