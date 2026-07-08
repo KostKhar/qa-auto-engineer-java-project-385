@@ -33,7 +33,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: |
-            cd hexlet/code
-            chmod +x gradlew
-            ./gradlew build sonar --info
+        run: |
+          cd hexlet/code
+          chmod +x gradlew
+          ./gradlew build sonar --info
