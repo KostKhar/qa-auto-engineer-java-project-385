@@ -32,7 +32,4 @@ public class DashboardPage extends BasePage {
         return TITLE_OF_CONTENT_ROOT;
     }
 
-    public Header getHeader() {
-        return header;
-    }
 }

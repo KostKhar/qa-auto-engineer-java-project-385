@@ -31,7 +31,7 @@ public class Table<T> {
         if (tbodies.isEmpty()) {
             return List.of();
         }
-        WebElement tbody = tbodies.get(0);
+        WebElement tbody = tbodies.getFirst();
         wait.until(ExpectedConditions.visibilityOf(tbody));
         return tableContainer.findElements(By.xpath(".//tbody//tr"));
     }

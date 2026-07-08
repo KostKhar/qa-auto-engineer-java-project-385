@@ -38,7 +38,8 @@ class StatusPageTest extends BasePageTest {
                     listPage.deleteStatusByName(name);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         } finally {
             namesToCleanup.clear();
         }

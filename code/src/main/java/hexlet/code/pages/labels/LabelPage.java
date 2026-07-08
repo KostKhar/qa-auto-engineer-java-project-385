@@ -36,20 +36,19 @@ public class LabelPage extends BasePage {
     }
 
 
-    public boolean updateLabel(Label label) {
+    public void updateLabel(Label label) {
         fillLabelForm(label);
         waitForElementClickable(saveButton).click();
-        return waitForElementVisible(successUpdatedPopup).isDisplayed();
+        waitForElementVisible(successUpdatedPopup).isDisplayed();
     }
 
     public void submitFormWithoutWaitingForSuccess() {
         waitForElementClickable(saveButton).click();
     }
 
-    public boolean deleteLabel() {
+    public void deleteLabel() {
         waitForElementClickable(deleteButton).click();
         waitForElementVisible(successDeletePopup);
-        return true;
     }
 
     public String getNameValue() {
