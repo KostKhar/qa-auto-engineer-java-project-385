@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TasksListPage extends BasePage {
+    private static final int DRAG_OFFSET_X = 10;
+    private static final int DRAG_TARGET_OFFSET_Y = 100;
+    private static final long DRAG_PAUSE_MS = 400L;
+
     private final By assigneeFilter = By.xpath(
             "(//*[contains(@class,'RaFilterForm')]//div[@role='combobox'])[1]"
     );
@@ -51,7 +55,7 @@ public class TasksListPage extends BasePage {
     }
 
     public List<String> getColumnNames() {
-        return driver.findElements(columnTitle).stream()
+        return getDriver().findElements(columnTitle).stream()
                 .map(element -> element.getText().trim())
                 .filter(name -> !name.isBlank())
                 .toList();
@@ -65,22 +69,22 @@ public class TasksListPage extends BasePage {
     }
 
     public int getVisibleTaskCount() {
-        return driver.findElements(taskTitle).size();
+        return getDriver().findElements(taskTitle).size();
     }
 
     public TaskByIdPage clickCreateTask() {
         waitForElementClickable(createButton).click();
-        return new TaskByIdPage(driver);
+        return new TaskByIdPage(getDriver());
     }
 
     public TaskByIdForm openTaskShowByTitle(String title) {
         requireTaskCardElement(title).findElement(showButton).click();
-        return new TaskByIdForm(driver);
+        return new TaskByIdForm(getDriver());
     }
 
     public TaskByIdPage openTaskEditByTitle(String title) {
         waitForElementClickable(editButtonByTitle(title)).click();
-        return new TaskByIdPage(driver);
+        return new TaskByIdPage(getDriver());
     }
 
     public TasksListPage updateTaskByTitle(String title, Task updatedTask) {
@@ -141,11 +145,11 @@ public class TasksListPage extends BasePage {
         WebElement sourceCard = requireTaskCardElement(title);
         WebElement targetColumn = findColumnContent(targetColumnName);
 
-        new Actions(driver)
+        new Actions(getDriver())
                 .clickAndHold(sourceCard)
-                .moveByOffset(10, 0)
-                .moveToElement(targetColumn, 10, 100)
-                .pause(Duration.ofMillis(400))
+                .moveByOffset(DRAG_OFFSET_X, 0)
+                .moveToElement(targetColumn, DRAG_OFFSET_X, DRAG_TARGET_OFFSET_Y)
+                .pause(Duration.ofMillis(DRAG_PAUSE_MS))
                 .release()
                 .perform();
         waitForCondition(driver -> isTaskInColumn(title, targetColumnName));
@@ -178,7 +182,7 @@ public class TasksListPage extends BasePage {
 
     private WebElement findTaskCardElement(String title) {
         try {
-            return driver.findElement(By.xpath(
+            return getDriver().findElement(By.xpath(
                     "//*[contains(@class,'MuiTypography-h5') and normalize-space(text())="
                             + xpathLiteral(title)
                             + "]/ancestor::div[contains(@class,'MuiCard-root')]"
@@ -189,7 +193,7 @@ public class TasksListPage extends BasePage {
     }
 
     private WebElement findColumnContent(String columnName) {
-        return driver.findElement(By.xpath(
+        return getDriver().findElement(By.xpath(
                 "//*[contains(@class,'MuiTypography-subtitle1') and normalize-space(text())="
                         + xpathLiteral(columnName) + "]/following-sibling::div[1]"
         ));

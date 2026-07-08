@@ -8,7 +8,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public class Header {
     private final WebDriver driver;

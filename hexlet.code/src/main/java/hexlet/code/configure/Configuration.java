@@ -1,4 +1,4 @@
-package hexlet.code.config;
+package hexlet.code.configure;
 
 import org.aeonbits.owner.Config;
 

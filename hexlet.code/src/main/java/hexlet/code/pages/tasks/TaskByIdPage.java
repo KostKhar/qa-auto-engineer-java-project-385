@@ -2,7 +2,11 @@ package hexlet.code.pages.tasks;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.pages.BasePage;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import java.util.List;
@@ -28,18 +32,38 @@ public class TaskByIdPage extends BasePage {
     }
 
     public void fillTaskForm(Task task) {
+        fillTitleIfPresent(task);
+        fillContentIfPresent(task);
+        fillAssigneeIfPresent(task);
+        fillStatusIfPresent(task);
+        fillLabelsIfPresent(task);
+    }
+
+    private void fillTitleIfPresent(Task task) {
         if (task.getTitle() != null) {
             waitForElementClearAndSendKeys(titleField, task.getTitle());
         }
+    }
+
+    private void fillContentIfPresent(Task task) {
         if (task.getContent() != null) {
             waitForElementClearAndSendKeys(contentField, task.getContent());
         }
+    }
+
+    private void fillAssigneeIfPresent(Task task) {
         if (task.getAssigneeEmail() != null) {
             selectComboboxOption(assigneeCombobox, task.getAssigneeEmail());
         }
+    }
+
+    private void fillStatusIfPresent(Task task) {
         if (task.getStatusName() != null) {
             selectComboboxOption(statusCombobox, task.getStatusName());
         }
+    }
+
+    private void fillLabelsIfPresent(Task task) {
         if (task.getLabels() != null && !task.getLabels().isEmpty()) {
             selectLabels(task.getLabels());
         }
@@ -49,7 +73,7 @@ public class TaskByIdPage extends BasePage {
         fillTaskForm(task);
         waitForElementClickable(saveButton).click();
         waitForElementVisible(successCreatePopup);
-        return new SideBar(driver).getTaskListPage();
+        return new SideBar(getDriver()).getTaskListPage();
     }
 
     public void updateTask(Task task) {
@@ -64,7 +88,7 @@ public class TaskByIdPage extends BasePage {
 
     public TasksListPage updateTaskAndReturnToBoard(Task task) {
         updateTask(task);
-        return new SideBar(driver).getTaskListPage();
+        return new SideBar(getDriver()).getTaskListPage();
     }
 
     public void submitFormWithoutWaitingForSuccess() {
@@ -161,11 +185,11 @@ public class TaskByIdPage extends BasePage {
     }
 
     private void closeOpenListbox(By listbox) {
-        new Actions(driver).sendKeys(Keys.ESCAPE).perform();
+        new Actions(getDriver()).sendKeys(Keys.ESCAPE).perform();
         try {
             waitForElementInvisible(listbox);
         } catch (TimeoutException e) {
-            List<WebElement> backdrops = driver.findElements(
+            List<WebElement> backdrops = getDriver().findElements(
                     By.xpath("//*[contains(@class,'MuiBackdrop-root')]"));
             if (!backdrops.isEmpty()) {
                 backdrops.get(0).click();

@@ -22,7 +22,12 @@ public class StatusesListPage extends AbstractListPage<Status> {
     private static Table<Status> createTable(WebDriver driver) {
         return new Table<>(driver, waitForTableContainer(driver), row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
-            String slug = cells.size() > SLUG_COLUMN_INDEX ? cells.get(SLUG_COLUMN_INDEX).getText().trim() : "";
+            String slug;
+            if (cells.size() > SLUG_COLUMN_INDEX) {
+                slug = cells.get(SLUG_COLUMN_INDEX).getText().trim();
+            } else {
+                slug = "";
+            }
             return new Status(
                     row,
                     cells.get(1).getText().trim(),
@@ -34,7 +39,7 @@ public class StatusesListPage extends AbstractListPage<Status> {
 
     public boolean isTableVisible() {
         waitForElementVisible(CREATE_BUTTON);
-        return !driver.findElements(TABLE_CONTAINER).isEmpty()
+        return !getDriver().findElements(TABLE_CONTAINER).isEmpty()
                 || waitForElementVisible(LIST_ROOT).isDisplayed();
     }
 
@@ -48,7 +53,7 @@ public class StatusesListPage extends AbstractListPage<Status> {
 
     public StatusPage clickCreateStatus() {
         waitForElementClickable(CREATE_BUTTON).click();
-        return new StatusPage(driver);
+        return new StatusPage(getDriver());
     }
 
     public StatusPage openStatusByName(String name) {
@@ -57,18 +62,18 @@ public class StatusesListPage extends AbstractListPage<Status> {
             throw new IllegalArgumentException(String.format("Status with name '%s' does not exist", name));
         }
         status.clickStatus();
-        return new StatusPage(driver);
+        return new StatusPage(getDriver());
     }
 
     public StatusesListPage updateStatusByName(String name, Status updatedStatus) {
         StatusPage statusPage = openStatusByName(name);
         statusPage.openEditForm();
         statusPage.updateStatus(updatedStatus);
-        return new SideBar(driver).getStatusesListPage();
+        return new SideBar(getDriver()).getStatusesListPage();
     }
 
     private Status findStatusInTable(String name) {
-        return table.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
+        return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
     public Status getStatusByName(String name) {
@@ -76,7 +81,7 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public boolean isStatusExists(String name) {
-        return table.containsValueInColumn(NAME_COLUMN_INDEX, name);
+        return getTable().containsValueInColumn(NAME_COLUMN_INDEX, name);
     }
 
     public boolean isStatusNotExists(String name) {
@@ -84,11 +89,11 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public boolean isStatusNotExistsBySlug(String slug) {
-        return !table.containsValueInColumn(SLUG_COLUMN_INDEX, slug);
+        return !getTable().containsValueInColumn(SLUG_COLUMN_INDEX, slug);
     }
 
     public Status getStatusAtRow(int rowIndex) {
-        return table.getRowAsObject(rowIndex);
+        return getTable().getRowAsObject(rowIndex);
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {

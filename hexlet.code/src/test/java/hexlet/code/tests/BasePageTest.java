@@ -1,6 +1,6 @@
 package hexlet.code.tests;
 
-import hexlet.code.config.Configuration;
+import hexlet.code.configure.Configuration;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 abstract class BasePageTest {
     protected WebDriver driver;

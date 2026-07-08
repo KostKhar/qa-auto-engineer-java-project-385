@@ -32,7 +32,7 @@ public class StatusPage extends BasePage {
         fillStatusForm(status);
         waitForElementClickable(saveButton).click();
         waitForElementVisible(successCreatePopup);
-        return new SideBar(driver).getStatusesListPage();
+        return new SideBar(getDriver()).getStatusesListPage();
     }
 
     public StatusPage openEditForm() {

@@ -9,12 +9,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public class Table<T> {
     private static final By TABLE_BODY = By.xpath(".//tbody");
     private static final By TABLE_HEADER = By.xpath(".//thead");
-    private static final By cell = By.xpath(".//td");
+    private static final By CELL = By.xpath(".//td");
 
     private final WebElement tableContainer;
     private final RowMapper<T> rowMapper;
@@ -46,7 +46,7 @@ public class Table<T> {
 
     public WebElement getCell(int rowIndex, int colIndex) {
         WebElement row = getRow(rowIndex);
-        List<WebElement> cells = row.findElements(cell);
+        List<WebElement> cells = row.findElements(CELL);
         if (colIndex < 0 || colIndex >= cells.size()) {
             throw new IndexOutOfBoundsException("Column index " + colIndex + " out of bounds. Row has " + cells.size() + " cells.");
         }
@@ -70,7 +70,7 @@ public class Table<T> {
         List<WebElement> rows = getRows();
 
         for (WebElement row : rows) {
-            List<WebElement> cells = row.findElements(cell);
+            List<WebElement> cells = row.findElements(CELL);
             if (colIndex < cells.size()) {
                 String cellText = cells.get(colIndex).getText().trim();
                 if (cellText.equals(expectedValue)) {
@@ -94,7 +94,10 @@ public class Table<T> {
 
     public T findRowObjectByColumnValue(int colIndex, String expectedValue) {
         WebElement row = findRowByColumnValue(colIndex, expectedValue);
-        return row != null ? rowMapper.map(row) : null;
+        if (row == null) {
+            return null;
+        }
+        return rowMapper.map(row);
     }
 
     @FunctionalInterface

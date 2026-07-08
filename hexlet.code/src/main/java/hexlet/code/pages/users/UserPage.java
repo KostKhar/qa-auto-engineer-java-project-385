@@ -27,7 +27,7 @@ public class UserPage extends BasePage {
 
     public UsersListPage createUserAndReturnToList(User user) {
         createUser(user);
-        return new SideBar(driver).getUsersListPage();
+        return new SideBar(getDriver()).getUsersListPage();
     }
 
     public void fillUserForm(User user) {

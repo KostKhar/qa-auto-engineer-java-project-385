@@ -2,6 +2,7 @@ plugins {
     java
     id("io.qameta.allure") version "2.11.2"
     id("org.sonarqube") version "7.3.1.8318"
+    checkstyle
 }
 
 repositories {
@@ -17,10 +18,10 @@ val seleniumVersion = "4.40.0"
 val chromeVersion = "149"
 val allureVersion = "2.35.2"
 val lombokVersion = "1.18.38"
-val junit5 = "5.8.1"
+val junit5 = "5.10.3"
 val faker = "1.0.2"
 val owner = "1.0.12"
-val assertj = "1.0.12"
+val assertj = "3.27.7"
 val webManager = "5.9.0"
 
 dependencies {
@@ -39,8 +40,8 @@ dependencies {
     testImplementation("io.qameta.allure:allure-junit5:$allureVersion")
     testImplementation ("com.github.javafaker:javafaker:$faker")
 
-  testImplementation ("org.projectlombok:lombok:$lombokVersion")
-     testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
+    testImplementation ("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
  }
 
 tasks.test {
@@ -53,4 +54,9 @@ sonar {
     property("sonar.projectKey", "KostKhar_qa-auto-engineer-java-project-385")
     property("sonar.organization", "kostkhar")
   }
+}
+
+checkstyle {
+    configProperties["org.checkstyle.google.suppressionfilter.config"] =
+        "${project.rootDir}/config/checkstyle/checkstyle-suppressions.xml"
 }

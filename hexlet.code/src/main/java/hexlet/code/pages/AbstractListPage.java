@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public abstract class AbstractListPage<T> extends BasePage {
     protected static final By CREATE_BUTTON = By.xpath("//*[@aria-label='Create']");
@@ -25,10 +25,14 @@ public abstract class AbstractListPage<T> extends BasePage {
             "//*[@aria-label='Create']/ancestor::div[contains(@class, 'RaList')][1]"
     );
 
-    protected Table<T> table;
+    private Table<T> table;
 
     protected AbstractListPage(WebDriver driver) {
         super(driver);
+    }
+
+    protected Table<T> getTable() {
+        return table;
     }
 
     protected static WebElement waitForTableContainer(WebDriver driver) {
@@ -50,7 +54,7 @@ public abstract class AbstractListPage<T> extends BasePage {
     }
 
     protected WebElement resolveTableContainer() {
-        List<WebElement> containers = driver.findElements(TABLE_CONTAINER);
+        List<WebElement> containers = getDriver().findElements(TABLE_CONTAINER);
         if (!containers.isEmpty()) {
             return waitForElementVisible(TABLE_CONTAINER);
         }
@@ -62,7 +66,7 @@ public abstract class AbstractListPage<T> extends BasePage {
     }
 
     public boolean hasColumnHeaders(String... expectedHeaders) {
-        List<String> headers = table.getHeaders();
+        List<String> headers = getTable().getHeaders();
         return Arrays.stream(expectedHeaders)
                 .allMatch(expected -> headers.stream()
                         .anyMatch(header -> header.equalsIgnoreCase(expected)));
@@ -74,11 +78,11 @@ public abstract class AbstractListPage<T> extends BasePage {
 
     public boolean isTableLoaded() {
         waitForElementVisible(TABLE_CONTAINER);
-        return !table.getRows().isEmpty();
+        return !getTable().getRows().isEmpty();
     }
 
     public int getRowCount() {
-        return table.getRows().size();
+        return getTable().getRows().size();
     }
 
     protected void selectAllRows() {

@@ -17,9 +17,12 @@ public class LabelsListPage extends AbstractListPage<Label> {
         super(driver);
         initTable(new Table<>(driver, waitForListTableContainer(driver), row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
-            String createdAt = cells.size() > CREATED_AT_COLUMN_INDEX
-                    ? cells.get(CREATED_AT_COLUMN_INDEX).getText().trim()
-                    : "";
+            String createdAt;
+            if (cells.size() > CREATED_AT_COLUMN_INDEX) {
+                createdAt = cells.get(CREATED_AT_COLUMN_INDEX).getText().trim();
+            } else {
+                createdAt = "";
+            }
             return new Label(
                     row,
                     cells.get(1).getText().trim(),
@@ -40,7 +43,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
 
     public LabelPage clickCreateLabel() {
         waitForElementClickable(CREATE_BUTTON).click();
-        return new LabelPage(driver);
+        return new LabelPage(getDriver());
     }
 
     public LabelPage openLabelByName(String name) {
@@ -49,17 +52,17 @@ public class LabelsListPage extends AbstractListPage<Label> {
             throw new IllegalArgumentException(String.format("Label with name '%s' does not exist", name));
         }
         label.clickLabel();
-        return new LabelPage(driver);
+        return new LabelPage(getDriver());
     }
 
     public LabelsListPage updateLabelByName(String name, Label updatedLabel) {
         LabelPage labelPage = openLabelByName(name);
         labelPage.updateLabel(updatedLabel);
-        return new SideBar(driver).getLabelsListPage();
+        return new SideBar(getDriver()).getLabelsListPage();
     }
 
     private Label findLabelInTable(String name) {
-        return table.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
+        return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
     public Label getLabelByName(String name) {
@@ -67,7 +70,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public boolean isLabelExists(String name) {
-        return table.containsValueInColumn(NAME_COLUMN_INDEX, name);
+        return getTable().containsValueInColumn(NAME_COLUMN_INDEX, name);
     }
 
     public boolean isLabelNotExists(String name) {
@@ -75,7 +78,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {
-        Label label = table.getRowAsObject(rowIndex);
+        Label label = getTable().getRowAsObject(rowIndex);
         return !label.getName().isBlank() && !label.getCreatedAt().isBlank();
     }
 

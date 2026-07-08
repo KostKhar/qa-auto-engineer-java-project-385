@@ -1,7 +1,12 @@
 package hexlet.code.pages;
 
 import io.qameta.allure.Allure;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -10,12 +15,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public abstract class BasePage {
     protected static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
-    protected WebDriver driver;
-    protected WebDriverWait wait;
+    private WebDriver driver;
+    private WebDriverWait wait;
 
 
     protected BasePage(WebDriver driver) {
@@ -24,22 +29,30 @@ public abstract class BasePage {
         waitForPageLoaded();
     }
 
+    protected WebDriver getDriver() {
+        return driver;
+    }
+
+    protected WebDriverWait getWait() {
+        return wait;
+    }
+
     protected void initComponents() {
     }
 
     protected WebElement waitForElementVisible(By locator) {
         return Allure.step("Ожидание видимости элемента",
-                () -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+                () -> getWait().until(ExpectedConditions.visibilityOfElementLocated(locator)));
     }
 
     protected WebElement waitForElementClickable(By locator) {
         return Allure.step("Ожидание кликабельности элемента",
-                () -> wait.until(ExpectedConditions.elementToBeClickable(locator)));
+                () -> getWait().until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
     protected boolean waitForElementInvisible(By locator) {
         return Allure.step("Ожидание исчезновения элемента",
-                () -> wait.until(ExpectedConditions.invisibilityOfElementLocated(locator)));
+                () -> getWait().until(ExpectedConditions.invisibilityOfElementLocated(locator)));
     }
 
 
@@ -60,12 +73,12 @@ public abstract class BasePage {
 
 
     protected boolean waitForCondition(Function<WebDriver, Boolean> condition) {
-        return wait.until(condition);
+        return getWait().until(condition);
     }
 
 
     protected void waitForPageLoaded() {
-        Allure.step("Ожидание загрузки страницы", () -> wait.until(webDriver ->
+        Allure.step("Ожидание загрузки страницы", () -> getWait().until(webDriver ->
                 Objects.equals(((JavascriptExecutor) webDriver)
                         .executeScript("return document.readyState"), "complete")
         ));
@@ -96,7 +109,7 @@ public abstract class BasePage {
 
     protected boolean hasBrowserValidationMessage(By field) {
         WebElement element = waitForElementVisible(field);
-        Object message = ((JavascriptExecutor) driver).executeScript(
+        Object message = ((JavascriptExecutor) getDriver()).executeScript(
                 "return arguments[0].validationMessage;", element
         );
         return message != null && !message.toString().isBlank();
@@ -109,7 +122,7 @@ public abstract class BasePage {
             if (errors.stream().anyMatch(WebElement::isDisplayed)) {
                 return true;
             }
-            return driver.findElements(validationErrorLocator).stream().anyMatch(WebElement::isDisplayed);
+            return getDriver().findElements(validationErrorLocator).stream().anyMatch(WebElement::isDisplayed);
         } catch (Exception e) {
             return false;
         }

@@ -11,7 +11,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class RandomTestData {
+public final class RandomTestData {
+    private RandomTestData() {
+    }
+
     private static final Faker FAKER = new Faker();
 
     private static final List<String> ASSIGNEE_EMAILS = List.of(

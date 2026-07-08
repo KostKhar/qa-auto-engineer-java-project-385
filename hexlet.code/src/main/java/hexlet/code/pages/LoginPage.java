@@ -22,7 +22,7 @@ public class LoginPage extends BasePage {
         Allure.step("Заполнение поля пароль", () -> waitForElementAndSendKeys(passwordField, password));
         Allure.step("Нажимаем на кнопку Sign in", () -> waitForElementAndClick(signInButton));
         waitForPageLoaded();
-        return new DashboardPage(driver);
+        return new DashboardPage(getDriver());
     }
 
     public String getErrorMessageText() {

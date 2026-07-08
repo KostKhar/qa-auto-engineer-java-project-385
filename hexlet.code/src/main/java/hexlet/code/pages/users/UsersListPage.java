@@ -32,9 +32,9 @@ public class UsersListPage extends AbstractListPage<User> {
                     row,
                     cells.get(1).getText().trim(),
                     cells.get(2).getText().trim(),
-                    cells.get(3).getText().trim(),
-                    cells.get(4).getText().trim(),
-                    cells.get(5).getText().trim()
+                    cells.get(FIRSTNAME_COLUMN_INDEX).getText().trim(),
+                    cells.get(LASTNAME_COLUMN_INDEX).getText().trim(),
+                    cells.get(CREATED_AT_COLUMN_INDEX).getText().trim()
             );
         });
     }
@@ -52,7 +52,7 @@ public class UsersListPage extends AbstractListPage<User> {
     }
 
     public User getUserAtRow(int rowIndex) {
-        return table.getRowAsObject(rowIndex);
+        return getTable().getRowAsObject(rowIndex);
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {
@@ -64,7 +64,7 @@ public class UsersListPage extends AbstractListPage<User> {
 
     public UserPage clickCreateUser() {
         waitForElementClickable(CREATE_BUTTON).click();
-        return new UserPage(driver);
+        return new UserPage(getDriver());
     }
 
     public UserPage openUserByEmail(String email) {
@@ -78,23 +78,23 @@ public class UsersListPage extends AbstractListPage<User> {
         }
 
         user.clickUser();
-        return new UserPage(driver);
+        return new UserPage(getDriver());
     }
 
     private User findUserInTable(String email) {
-        return table.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
+        return getTable().findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
     }
 
     public User getUserByEmail(String email) {
         searchUser(email);
-        return table.findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
+        return getTable().findRowObjectByColumnValue(EMAIL_COLUMN_INDEX, email);
     }
 
     public UsersListPage updateUserByEmail(String email, User userToUpdate) {
         UserPage userPage = openUserByEmail(email);
         userPage.openEditForm();
         userPage.updateUser(userToUpdate);
-        return new SideBar(driver).getUsersListPage();
+        return new SideBar(getDriver()).getUsersListPage();
     }
 
     public boolean deleteUserByEmail(String email) {
@@ -133,36 +133,36 @@ public class UsersListPage extends AbstractListPage<User> {
     }
 
     public String getUserId(int rowIndex) {
-        return table.getCellText(rowIndex, ID_COLUMN_INDEX);
+        return getTable().getCellText(rowIndex, ID_COLUMN_INDEX);
     }
 
     public String getUserEmail(int rowIndex) {
-        return table.getCellText(rowIndex, EMAIL_COLUMN_INDEX);
+        return getTable().getCellText(rowIndex, EMAIL_COLUMN_INDEX);
     }
 
     public String getUserFirstName(int rowIndex) {
-        return table.getCellText(rowIndex, FIRSTNAME_COLUMN_INDEX);
+        return getTable().getCellText(rowIndex, FIRSTNAME_COLUMN_INDEX);
     }
 
     public String getUserLastName(int rowIndex) {
-        return table.getCellText(rowIndex, LASTNAME_COLUMN_INDEX);
+        return getTable().getCellText(rowIndex, LASTNAME_COLUMN_INDEX);
     }
 
     public String getUserCreatedAt(int rowIndex) {
-        return table.getCellText(rowIndex, CREATED_AT_COLUMN_INDEX);
+        return getTable().getCellText(rowIndex, CREATED_AT_COLUMN_INDEX);
     }
 
     public boolean isUserExists(String email) {
-        if (table.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
+        if (getTable().containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
             return true;
         }
 
         searchUser(email);
-        return waitForCondition(driver -> table.containsValueInColumn(EMAIL_COLUMN_INDEX, email));
+        return waitForCondition(driver -> getTable().containsValueInColumn(EMAIL_COLUMN_INDEX, email));
     }
 
     public boolean isUserNotExists(String email) {
-        if (table.containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
+        if (getTable().containsValueInColumn(EMAIL_COLUMN_INDEX, email)) {
             return false;
         }
 

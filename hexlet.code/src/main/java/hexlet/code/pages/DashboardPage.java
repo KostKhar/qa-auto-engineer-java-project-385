@@ -20,12 +20,12 @@ public class DashboardPage extends BasePage {
 
     @Override
     public void initComponents() {
-        header = new Header(driver);
-        sideBar = new SideBar(driver);
+        header = new Header(getDriver());
+        sideBar = new SideBar(getDriver());
     }
 
     public String getTitleOfContentRootByLocator() {
-        return driver.findElement(titleOfContentRootLocator).getText();
+        return getDriver().findElement(titleOfContentRootLocator).getText();
     }
 
     public String getTitleOfContentRoot() {

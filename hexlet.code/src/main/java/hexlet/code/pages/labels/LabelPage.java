@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-import static hexlet.code.config.ConfigurationManager.config;
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public class LabelPage extends BasePage {
     private final By nameField = By.xpath("//*[@name='name']");
@@ -32,7 +32,7 @@ public class LabelPage extends BasePage {
         fillLabelForm(label);
         waitForElementClickable(saveButton).click();
         waitForElementVisible(successCreatePopup);
-        return new SideBar(driver).getLabelsListPage();
+        return new SideBar(getDriver()).getLabelsListPage();
     }
 
 
@@ -71,7 +71,7 @@ public class LabelPage extends BasePage {
 
     public boolean isSaveButtonNotClickable() {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
+            WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(config().timeout()));
             wait.until(ExpectedConditions.elementToBeClickable(saveButton));
             return false;
         } catch (Exception e) {
