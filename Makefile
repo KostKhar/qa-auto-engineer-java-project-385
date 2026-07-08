@@ -8,34 +8,34 @@ endif
 .DEFAULT_GOAL := build-run
 
 setup:
-	cd app &&  ./gradlew wrapper --gradle-version 8.13
+	cd code &&  ./gradlew wrapper --gradle-version 8.13
 
 clean:
-	cd app &&  ./gradlew clean
+	cd code &&  ./gradlew clean
 
 build:
-	cd app &&  ./gradlew clean build
+	cd code &&  ./gradlew clean build
 
 install:
-	cd app && ./gradlew  clean installDist --no-daemon
+	cd code && ./gradlew  clean installDist --no-daemon
 
 start:
 	docker run --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
 
 run:
-	cd app && ./gradlew run
+	cd code && ./gradlew run
 
 test:
-	cd app && ./gradlew test
+	cd code && ./gradlew test
 
 report:
-	cd app && ./gradlew jacocoTestReport
+	cd code && ./gradlew jacocoTestReport
 
 lint:
-	cd app && ./gradlew spotlessApply
+	cd code && ./gradlew spotlessApply
 
 update-deps:
-	cd app && ./gradlew refreshVersions
+	cd code && ./gradlew refreshVersions
 
 
 build-run: build run
