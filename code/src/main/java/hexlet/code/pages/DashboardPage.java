@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 public class DashboardPage extends BasePage {
     private static final String TITLE_OF_CONTENT_ROOT = "Lorem ipsum sic dolor amet...";
     private final By titleOfContentRootLocator = By.xpath("//*[@class='MuiCardContent-root css-15q2cw4']");
+    @Getter
     private Header header;
     @Getter
     private SideBar sideBar;

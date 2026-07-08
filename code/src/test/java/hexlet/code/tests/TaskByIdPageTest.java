@@ -62,11 +62,13 @@ class TaskByIdPageTest extends BasePageTest {
     void checkTaskCreateFormFields() {
         TaskByIdPage taskPage = tasksListPage.clickCreateTask();
 
-        assertTrue(taskPage.isTitleFieldVisible());
-        assertTrue(taskPage.isAssigneeFieldVisible());
-        assertTrue(taskPage.isStatusFieldVisible());
-        assertTrue(taskPage.isContentFieldVisible());
-        assertTrue(taskPage.isSaveButtonVisible());
+        assertAll(
+                () -> assertTrue(taskPage.isTitleFieldVisible()),
+                () -> assertTrue(taskPage.isAssigneeFieldVisible()),
+                () -> assertTrue(taskPage.isStatusFieldVisible()),
+                () -> assertTrue(taskPage.isContentFieldVisible()),
+                () -> assertTrue(taskPage.isSaveButtonVisible())
+        );
     }
 
     @Test
@@ -77,8 +79,10 @@ class TaskByIdPageTest extends BasePageTest {
 
         createTaskOnBoard(testTask);
 
-        assertTrue(tasksListPage.isTaskExists(testTask.getTitle()));
-        assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), testTask.getStatusName()));
+        assertAll(
+                () -> assertTrue(tasksListPage.isTaskExists(testTask.getTitle())),
+                () -> assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), testTask.getStatusName()))
+        );
     }
 
     @Test
@@ -91,10 +95,12 @@ class TaskByIdPageTest extends BasePageTest {
 
         TaskByIdPage taskPage = tasksListPage.openTaskEditByTitle(testTask.getTitle());
 
-        assertEquals(testTask.getTitle(), taskPage.getTitleValue());
-        assertEquals(testTask.getContent(), taskPage.getContentValue());
-        assertEquals(testTask.getAssigneeEmail(), taskPage.getAssigneeValue());
-        assertEquals(testTask.getStatusName(), taskPage.getStatusValue());
+        assertAll(
+                () -> assertEquals(testTask.getTitle(), taskPage.getTitleValue()),
+                () -> assertEquals(testTask.getContent(), taskPage.getContentValue()),
+                () -> assertEquals(testTask.getAssigneeEmail(), taskPage.getAssigneeValue()),
+                () -> assertEquals(testTask.getStatusName(), taskPage.getStatusValue())
+        );
     }
 
     @Test
@@ -113,9 +119,10 @@ class TaskByIdPageTest extends BasePageTest {
         );
 
         tasksListPage = tasksListPage.updateTaskByTitle(testTask.getTitle(), updatedTask);
-
-        assertTrue(tasksListPage.isTaskExists(testTask.getTitle()));
-        assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "Published"));
+        assertAll(
+                () -> assertTrue(tasksListPage.isTaskExists(testTask.getTitle())),
+                () -> assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "Published"))
+        );
     }
 
     @Test
@@ -127,11 +134,12 @@ class TaskByIdPageTest extends BasePageTest {
         createTaskOnBoard(testTask);
 
         TaskByIdForm taskForm = tasksListPage.openTaskShowByTitle(testTask.getTitle());
-
-        assertTrue(taskForm.isTitleVisible());
-        assertEquals(testTask.getTitle(), taskForm.getTitleText());
-        assertEquals(testTask.getContent(), taskForm.getDescriptionText());
-        assertEquals(testTask.getAssigneeEmail(), taskForm.getAssigneeText());
+        assertAll(
+                () -> assertTrue(taskForm.isTitleVisible()),
+                () -> assertEquals(testTask.getTitle(), taskForm.getTitleText()),
+                () -> assertEquals(testTask.getContent(), taskForm.getDescriptionText()),
+                () -> assertEquals(testTask.getAssigneeEmail(), taskForm.getAssigneeText())
+        );
     }
 
     @Test
@@ -144,9 +152,10 @@ class TaskByIdPageTest extends BasePageTest {
         assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "Draft"));
 
         tasksListPage = tasksListPage.moveTaskToStatusByEdit(testTask.getTitle(), "To Publish");
-
-        assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "To Publish"));
-        assertFalse(tasksListPage.isTaskInColumn(testTask.getTitle(), "Draft"));
+        assertAll(
+                () -> assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "To Publish")),
+                () -> assertFalse(tasksListPage.isTaskInColumn(testTask.getTitle(), "Draft"))
+        );
     }
 
     @Test
