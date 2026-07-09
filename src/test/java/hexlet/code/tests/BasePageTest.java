@@ -47,21 +47,11 @@ abstract class BasePageTest {
     }
 
     private WebDriver createWebDriver(Configuration configuration) {
-        String browser = configuration.browser().toLowerCase();
-
-        return switch (browser) {
-            case "chromium", "chrome" -> {
-                ChromeOptions options = new ChromeOptions();
-                if (configuration.headless()) {
-                    options.addArguments("--headless=new");
-                }
-                options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
-                if (Files.exists(SYSTEM_CHROMIUM)) {
-                    options.setBinary(SYSTEM_CHROMIUM.toString());
-                }
-                yield new ChromeDriver(options);
-            }
-            default -> throw new IllegalArgumentException("Unsupported browser: " + browser);
-        };
+        ChromeOptions options = new ChromeOptions();
+        if (configuration.headless()) {
+            options.addArguments("--headless=new");
+        }
+        options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+        return new ChromeDriver(options);
     }
 }
