@@ -9,6 +9,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.Browser;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,18 +17,11 @@ import java.nio.file.Path;
 import static hexlet.code.configure.ConfigurationManager.config;
 
 abstract class BasePageTest {
-    private static final Path SYSTEM_CHROMEDRIVER = Path.of("/usr/bin/chromedriver");
-    private static final Path SYSTEM_CHROMIUM = Path.of("/usr/bin/chromium");
 
     protected WebDriver driver;
 
     @BeforeAll
     static void setupBrowser() {
-        if (Files.exists(SYSTEM_CHROMEDRIVER)) {
-            System.setProperty("webdriver.chrome.driver", SYSTEM_CHROMEDRIVER.toString());
-            return;
-        }
-
         WebDriverManager.chromedriver().setup();
     }
 
@@ -56,9 +50,6 @@ abstract class BasePageTest {
                     options.addArguments("--headless=new");
                 }
                 options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
-                if (Files.exists(SYSTEM_CHROMIUM)) {
-                    options.setBinary(SYSTEM_CHROMIUM.toString());
-                }
                 yield new ChromeDriver(options);
             }
             default -> throw new IllegalArgumentException("Unsupported browser: " + browser);
