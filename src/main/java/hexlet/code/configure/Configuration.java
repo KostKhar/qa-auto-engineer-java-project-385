@@ -4,10 +4,10 @@ import org.aeonbits.owner.Config;
 
 @Config.LoadPolicy(Config.LoadType.MERGE)
 @Config.Sources({
-    "classpath:config.properties",
-    "classpath:allure.properties",
     "system:properties",
-    "system:env"
+    "system:env",
+    "classpath:config.properties",
+    "classpath:allure.properties"
 })
 public interface Configuration extends Config {
 
