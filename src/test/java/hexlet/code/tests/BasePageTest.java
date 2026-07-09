@@ -36,7 +36,7 @@ abstract class BasePageTest {
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(configuration.baseUrl());
+        driver.get(resolveBaseUrl(configuration));
     }
 
     @AfterEach
@@ -52,6 +52,23 @@ abstract class BasePageTest {
             options.addArguments("--headless=new");
         }
         options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+        if (Files.exists(SYSTEM_CHROMIUM)) {
+            options.setBinary(SYSTEM_CHROMIUM.toString());
+        }
         return new ChromeDriver(options);
+    }
+
+    private String resolveBaseUrl(Configuration configuration) {
+        String baseUrlFromSystemProperty = System.getProperty("APP_BASE_URL");
+        if (baseUrlFromSystemProperty != null && !baseUrlFromSystemProperty.isBlank()) {
+            return baseUrlFromSystemProperty;
+        }
+
+        String baseUrlFromEnv = System.getenv("APP_BASE_URL");
+        if (baseUrlFromEnv != null && !baseUrlFromEnv.isBlank()) {
+            return baseUrlFromEnv;
+        }
+
+        return configuration.baseUrl();
     }
 }
