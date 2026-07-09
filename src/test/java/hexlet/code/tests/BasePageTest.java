@@ -36,7 +36,7 @@ abstract class BasePageTest {
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(resolveBaseUrl());
+        driver.get(configuration.baseUrl());
     }
 
     @AfterEach
@@ -58,11 +58,4 @@ abstract class BasePageTest {
         return new ChromeDriver(options);
     }
 
-    private String resolveBaseUrl() {
-        String baseUrlFromEnv = System.getenv("APP_BASE_URL");
-        if (baseUrlFromEnv != null && !baseUrlFromEnv.isBlank()) {
-            return baseUrlFromEnv;
-        }
-        throw new IllegalStateException("APP_BASE_URL environment variable must be set");
-    }
 }
