@@ -6,6 +6,7 @@ import hexlet.code.pages.AbstractListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.TimeoutException;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public LabelPage openLabelByName(String name) {
-        Label label = findLabelInTable(name);
+        Label label = waitForLabelInTable(name);
         if (label == null) {
             throw new IllegalArgumentException(String.format("Label with name '%s' does not exist", name));
         }
@@ -65,8 +66,17 @@ public class LabelsListPage extends AbstractListPage<Label> {
         return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
-    public Label getLabelByName(String name) {
+    private Label waitForLabelInTable(String name) {
+        try {
+            waitForCondition(driver -> findLabelInTable(name) != null);
+        } catch (TimeoutException e) {
+            return null;
+        }
         return findLabelInTable(name);
+    }
+
+    public Label getLabelByName(String name) {
+        return waitForLabelInTable(name);
     }
 
     public boolean isLabelExists(String name) {
