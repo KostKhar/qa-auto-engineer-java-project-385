@@ -85,7 +85,7 @@ class LabelPageTest extends BasePageTest {
 
         createLabelOnList(testLabel);
 
-        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName());
+        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName()).openEditForm();
 
         assertEquals(testLabel.getName(), labelPage.getNameValue());
     }
@@ -127,7 +127,7 @@ class LabelPageTest extends BasePageTest {
 
         createLabelOnList(testLabel);
 
-        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName());
+        LabelPage labelPage = labelsListPage.openLabelByName(testLabel.getName()).openEditForm();
         labelPage.fillLabelForm(new Label(""));
         labelPage.submitFormWithoutWaitingForSuccess();
 

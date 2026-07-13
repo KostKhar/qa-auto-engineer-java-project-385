@@ -58,8 +58,15 @@ public class LabelsListPage extends AbstractListPage<Label> {
 
     public LabelsListPage updateLabelByName(String name, Label updatedLabel) {
         LabelPage labelPage = openLabelByName(name);
+        labelPage.openEditForm();
         labelPage.updateLabel(updatedLabel);
-        return new SideBar(getDriver()).getLabelsListPage();
+        LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
+        if (labelsListPage.getLabelByName(updatedLabel.getName()) == null) {
+            throw new IllegalStateException(
+                    String.format("Label '%s' was updated but not found in list", updatedLabel.getName())
+            );
+        }
+        return labelsListPage;
     }
 
     private Label findLabelInTable(String name) {

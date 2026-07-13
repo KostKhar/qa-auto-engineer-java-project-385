@@ -58,7 +58,13 @@ public abstract class BasePage {
 
     protected void waitForElementClearAndSendKeys(By locator, String text) {
         WebElement element = waitForElementVisible(locator);
-        element.sendKeys(Keys.chord(Keys.COMMAND, "a")); // Выделяет
+        String selectAll;
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            selectAll = Keys.chord(Keys.COMMAND, "a");
+        } else {
+            selectAll = Keys.chord(Keys.CONTROL, "a");
+        }
+        element.sendKeys(selectAll);
         element.sendKeys(Keys.DELETE);
         element.sendKeys(text);
     }
