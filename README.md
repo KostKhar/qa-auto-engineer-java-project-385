@@ -13,6 +13,11 @@
 ```bash 
   make start 
 ```
+
+### Запуск тестов
+```bash 
+  make build 
+```
 ### Ссылка для старта
 http://localhost:5173
 
