@@ -90,6 +90,12 @@ public abstract class BasePage {
         ));
     }
 
+    protected void scrollIntoView(WebElement element) {
+        ((JavascriptExecutor) getDriver()).executeScript(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element
+        );
+    }
+
 
     protected String xpathLiteral(String value) {
         if (!value.contains("'")) {

@@ -73,6 +73,7 @@ public class TaskByIdPage extends BasePage {
         fillTaskForm(task);
         waitForElementClickable(saveButton).click();
         waitForElementVisible(successCreatePopup);
+        waitForElementInvisible(successCreatePopup);
         return new SideBar(getDriver()).getTaskListPage();
     }
 

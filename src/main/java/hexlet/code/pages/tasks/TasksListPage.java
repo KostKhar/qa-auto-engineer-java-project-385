@@ -13,7 +13,6 @@ import java.util.List;
 
 public class TasksListPage extends BasePage {
     private static final int DRAG_OFFSET_X = 10;
-    private static final int DRAG_TARGET_OFFSET_Y = 100;
     private static final long DRAG_PAUSE_MS = 400L;
 
     private final By assigneeFilter = By.xpath(
@@ -140,10 +139,19 @@ public class TasksListPage extends BasePage {
         WebElement sourceCard = requireTaskCardElement(title);
         WebElement targetColumn = findColumnContent(targetColumnName);
 
+        scrollIntoView(sourceCard);
+        scrollIntoView(targetColumn);
+
+        int sourceX = sourceCard.getSize().getWidth() / 2;
+        int sourceY = sourceCard.getSize().getHeight() / 2;
+        int targetX = Math.max(DRAG_OFFSET_X, targetColumn.getSize().getWidth() / 2);
+        int targetY = Math.max(DRAG_OFFSET_X, targetColumn.getSize().getHeight() / 2);
+
         new Actions(getDriver())
-                .clickAndHold(sourceCard)
-                .moveByOffset(DRAG_OFFSET_X, 0)
-                .moveToElement(targetColumn, DRAG_OFFSET_X, DRAG_TARGET_OFFSET_Y)
+                .moveToElement(sourceCard, sourceX, sourceY)
+                .clickAndHold()
+                .pause(Duration.ofMillis(DRAG_PAUSE_MS))
+                .moveToElement(targetColumn, targetX, targetY)
                 .pause(Duration.ofMillis(DRAG_PAUSE_MS))
                 .release()
                 .perform();
