@@ -36,7 +36,7 @@ abstract class BasePageTest {
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(configuration.baseUrl());
+        driver.get(resolveBaseUrl());
     }
 
     @AfterEach
@@ -44,6 +44,20 @@ abstract class BasePageTest {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    private String resolveBaseUrl() {
+        String baseUrlFromProperty = System.getProperty("APP_BASE_URL");
+        if (baseUrlFromProperty != null && !baseUrlFromProperty.isBlank()) {
+            return baseUrlFromProperty;
+        }
+
+        String baseUrlFromEnv = System.getenv("APP_BASE_URL");
+        if (baseUrlFromEnv != null && !baseUrlFromEnv.isBlank()) {
+            return baseUrlFromEnv;
+        }
+
+        throw new IllegalStateException("APP_BASE_URL environment variable must be set");
     }
 
     private WebDriver createWebDriver(Configuration configuration) {

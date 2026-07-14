@@ -6,14 +6,10 @@ import org.aeonbits.owner.Config;
 @Config.Sources({
     "system:properties",
     "system:env",
-    "file:.env",
     "classpath:config.properties",
     "classpath:allure.properties"
 })
 public interface Configuration extends Config {
-
-    @Key("APP_BASE_URL")
-    String baseUrl();
 
     @Key("headless")
     boolean headless();

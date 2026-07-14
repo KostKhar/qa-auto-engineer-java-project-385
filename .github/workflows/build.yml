@@ -33,11 +33,13 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
         run: |
-          docker run --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
-          set -a
-          [ -f .env ] && . ./.env
-          set +a
+          docker run -d --name kanban-app --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:5173/ > /dev/null && break
+            sleep 2
+          done
           chmod +x gradlew
           ./gradlew build sonar --info
-          docker stop
+          docker stop kanban-app
