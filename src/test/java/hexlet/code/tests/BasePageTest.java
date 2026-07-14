@@ -36,7 +36,7 @@ abstract class BasePageTest {
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(resolveBaseUrl());
+        driver.get(configuration.baseUrl());
     }
 
     @AfterEach
@@ -44,14 +44,6 @@ abstract class BasePageTest {
         if (driver != null) {
             driver.quit();
         }
-    }
-
-    private String resolveBaseUrl() {
-        String baseurl = System.getenv("APP_BASE_URL");
-        if (baseurl == null || baseurl.trim().isEmpty()) {
-            baseurl = "http://localhost:5173";
-        }
-        return baseurl;
     }
 
     private WebDriver createWebDriver(Configuration configuration) {

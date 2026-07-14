@@ -33,7 +33,6 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
         run: |
           docker run -d --name kanban-app --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
           for i in $(seq 1 30); do
@@ -41,5 +40,5 @@ jobs:
             sleep 2
           done
           chmod +x gradlew
-          ./gradlew build sonar --info
+          ./gradlew build sonar --info -PAPP_BASE_URL=${{ vars.APP_BASE_URL }}
           docker stop kanban-app

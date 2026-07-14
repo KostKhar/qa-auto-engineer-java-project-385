@@ -46,9 +46,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    System.getenv("APP_BASE_URL")?.takeIf { it.isNotBlank() }?.let { url ->
-        environment("APP_BASE_URL", url)
-        systemProperty("APP_BASE_URL", url)
+    val appBaseUrl = findProperty("APP_BASE_URL")?.toString()
+        ?: System.getenv("APP_BASE_URL")
+    if (!appBaseUrl.isNullOrBlank()) {
+        systemProperty("APP_BASE_URL", appBaseUrl)
     }
 }
 
