@@ -33,7 +33,7 @@ abstract class BasePageTest {
 
     @BeforeEach
     void startBrowser() {
-        String baseUrl = System.getenv("APP_BASE_URL");
+        String baseUrl = System.getProperty("APP_BASE_URL");
         if (baseUrl == null || baseUrl.isEmpty()) {
             baseUrl = "http://localhost:5173/";
         }
