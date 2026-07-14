@@ -20,7 +20,6 @@ start:
 test:
 	./gradlew clean test 
 
-
 lint:
 	./gradlew checkstyleMain checkstyleTest
 

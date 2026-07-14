@@ -16,7 +16,7 @@
 
 ### Запуск тестов
 ```bash 
-  make build 
+  make test 
 ```
 ### Ссылка для старта
 http://localhost:5173
