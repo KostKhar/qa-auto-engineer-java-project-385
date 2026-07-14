@@ -33,7 +33,7 @@ abstract class BasePageTest {
 
     @BeforeEach
     void startBrowser() {
-        String baseUrl = System.getProperty("APP_BASE_URL");
+        String baseUrl = System.getenv("APP_BASE_URL");
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("APP_BASE_URL is set to wrong value: " + baseUrl);
         }
