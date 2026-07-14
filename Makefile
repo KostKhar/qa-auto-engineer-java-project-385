@@ -1,3 +1,8 @@
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
 # Homebrew OpenJDK 21 (install: brew install openjdk@21)
 BREW_PREFIX := $(shell brew --prefix openjdk@21 2>/dev/null)
 ifneq ($(BREW_PREFIX),)

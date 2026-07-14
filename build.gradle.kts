@@ -46,6 +46,20 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    val envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        envFile.readLines()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
+            .forEach { line ->
+                val separatorIndex = line.indexOf('=')
+                val key = line.substring(0, separatorIndex).trim()
+                val value = line.substring(separatorIndex + 1).trim()
+                if (System.getenv(key) == null) {
+                    environment(key, value)
+                }
+            }
+    }
 }
 
 
