@@ -44,7 +44,12 @@ dependencies {
     testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
  }
 
-
+tasks.test {
+    useJUnitPlatform()
+    (findProperty("APP_BASE_URL") as String? ?: System.getenv("APP_BASE_URL"))
+        ?.takeIf { it.isNotBlank() }
+        ?.let { systemProperty("APP_BASE_URL", it) }
+}
 
 sonar {
   properties {

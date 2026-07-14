@@ -5,9 +5,8 @@ export JAVA_HOME := $(BREW_PREFIX)/libexec/openjdk.jdk/Contents/Home
 export PATH := $(JAVA_HOME)/bin:$(PATH)
 endif
 
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := test
 
-APP_BASE_URL ?= http://localhost:5173/
 
 setup:
 	./gradlew wrapper --gradle-version 8.13
@@ -18,13 +17,11 @@ clean:
 start:
 	docker run --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
 
-build:
-	./gradlew clean build -PAPP_BASE_URL=$(APP_BASE_URL)
-
 test:
-	./gradlew test
+	./gradlew clean test 
+
 
 lint:
 	./gradlew checkstyleMain checkstyleTest
 
-.PHONY: setup clean start build test lint
+.PHONY: setup clean start test lint
