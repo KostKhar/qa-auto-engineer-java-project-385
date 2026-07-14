@@ -63,7 +63,8 @@ public class UsersListPage extends AbstractListPage<User> {
     }
 
     public UserPage clickCreateUser() {
-        waitForElementClickable(CREATE_BUTTON).click();
+        waitForSnackbarToDisappear();
+        clickElement(CREATE_BUTTON);
         return new UserPage(getDriver());
     }
 
@@ -94,7 +95,10 @@ public class UsersListPage extends AbstractListPage<User> {
         UserPage userPage = openUserByEmail(email);
         userPage.openEditForm();
         userPage.updateUser(userToUpdate);
-        return new SideBar(getDriver()).getUsersListPage();
+        UsersListPage usersListPage = new SideBar(getDriver()).getUsersListPage();
+        waitForCondition(driver -> usersListPage.isUserExists(userToUpdate.getEmail())
+                && usersListPage.isUserNotExists(email));
+        return usersListPage;
     }
 
     public boolean deleteUserByEmail(String email) {

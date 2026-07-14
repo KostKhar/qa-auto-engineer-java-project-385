@@ -4,7 +4,7 @@ import io.qameta.allure.Allure;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -60,15 +59,26 @@ public abstract class BasePage {
 
     protected void waitForElementClearAndSendKeys(By locator, String text) {
         WebElement element = waitForElementVisible(locator);
-        String selectAll;
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            selectAll = Keys.chord(Keys.COMMAND, "a");
-        } else {
-            selectAll = Keys.chord(Keys.CONTROL, "a");
+        setReactInputValue(element, "");
+        if (text != null && !text.isEmpty()) {
+            element.sendKeys(text);
         }
-        element.sendKeys(selectAll);
-        element.sendKeys(Keys.DELETE);
-        element.sendKeys(text);
+    }
+
+    private void setReactInputValue(WebElement element, String value) {
+        ((JavascriptExecutor) getDriver()).executeScript(
+                """
+                const el = arguments[0];
+                const value = arguments[1];
+                const prototype = el.tagName === 'TEXTAREA'
+                    ? window.HTMLTextAreaElement.prototype
+                    : window.HTMLInputElement.prototype;
+                const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+                setter.call(el, value);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                """,
+                element, value);
     }
 
     protected void waitForElementAndClick(By locator) {
@@ -104,6 +114,41 @@ public abstract class BasePage {
         return getWait().until(condition);
     }
 
+    protected boolean waitForCondition(Function<WebDriver, Boolean> condition, Duration timeout) {
+        return new WebDriverWait(getDriver(), timeout).until(condition);
+    }
+
+    protected boolean waitForConditionOptional(Function<WebDriver, Boolean> condition, Duration timeout) {
+        try {
+            return new WebDriverWait(getDriver(), timeout).until(condition);
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
+
+    protected void dragAndDrop(WebElement source, WebElement target) {
+        scrollIntoView(source);
+        scrollIntoView(target);
+        JavascriptExecutor js = (JavascriptExecutor) getDriver();
+        js.executeScript(
+                """
+                const source = arguments[0];
+                const target = arguments[1];
+                const dataTransfer = new DataTransfer();
+                const fire = (element, type) => element.dispatchEvent(
+                    new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer })
+                );
+                fire(source, 'dragstart');
+                fire(target, 'dragenter');
+                fire(target, 'dragover');
+                fire(target, 'drop');
+                fire(source, 'dragend');
+                """,
+                source,
+                target
+        );
+    }
+
 
     protected void waitForPageLoaded() {
         Allure.step("Ожидание загрузки страницы", () -> getWait().until(webDriver ->
@@ -134,11 +179,20 @@ public abstract class BasePage {
         if (field.getText().trim().equals(optionText)) {
             return;
         }
-        field.click();
+        clickElement(field);
         By option = By.xpath(
                 "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(optionText) + "]"
         );
-        waitForElementClickable(option).click();
+        clickElement(option);
+        waitForSnackbarToDisappear();
+    }
+
+    protected boolean hasFieldValidationError(By field, By validationErrorLocator) {
+        try {
+            return hasBrowserValidationMessage(field) || hasVisibleValidationError(field, validationErrorLocator);
+        } catch (StaleElementReferenceException e) {
+            return hasBrowserValidationMessage(field) || hasVisibleValidationError(field, validationErrorLocator);
+        }
     }
 
     protected boolean hasBrowserValidationMessage(By field) {
@@ -151,11 +205,7 @@ public abstract class BasePage {
 
     protected boolean hasVisibleValidationError(By field, By validationErrorLocator) {
         try {
-            WebElement element = waitForElementVisible(field);
-            List<WebElement> errors = element.findElements(validationErrorLocator);
-            if (errors.stream().anyMatch(WebElement::isDisplayed)) {
-                return true;
-            }
+            waitForElementVisible(field);
             return getDriver().findElements(validationErrorLocator).stream().anyMatch(WebElement::isDisplayed);
         } catch (Exception e) {
             return false;

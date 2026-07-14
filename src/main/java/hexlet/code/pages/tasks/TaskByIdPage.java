@@ -19,7 +19,10 @@ public class TaskByIdPage extends BasePage {
     private final By labelCombobox = By.xpath(".//*/div[@data-testid='selectArray']");
     private final By saveButton = By.xpath("//*[@aria-label='Save']");
     private final By deleteButton = By.xpath("//*[@aria-label='Delete']");
-    private final By confirmDeleteButton = By.xpath("//*[@role='dialog']//button[contains(text(), 'Confirm')]");
+    private final By deleteConfirmDialog = By.xpath("//*[@role='dialog']");
+    private final By confirmDeleteButton = By.xpath(
+            "//*[@role='dialog']//button[contains(@class,'MuiButton-contained')]"
+    );
     private final By successCreatePopup = By.xpath("//*[contains(text(), 'created')]");
     private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'updated')]");
     private final By successDeletePopup = By.xpath("//*[contains(text(), 'deleted')]");
@@ -74,7 +77,9 @@ public class TaskByIdPage extends BasePage {
         clickElement(saveButton);
         waitForElementVisible(successCreatePopup);
         waitForElementInvisible(successCreatePopup);
-        return new SideBar(getDriver()).getTaskListPage();
+        TasksListPage tasksListPage = new SideBar(getDriver()).getTaskListPage();
+        waitForCondition(driver -> tasksListPage.isTaskExists(task.getTitle()));
+        return tasksListPage;
     }
 
     public void updateTask(Task task) {
@@ -90,7 +95,11 @@ public class TaskByIdPage extends BasePage {
 
     public TasksListPage updateTaskAndReturnToBoard(Task task) {
         updateTask(task);
-        return new SideBar(getDriver()).getTaskListPage();
+        TasksListPage tasksListPage = new SideBar(getDriver()).getTaskListPage();
+        if (task.getTitle() != null && task.getStatusName() != null) {
+            waitForCondition(driver -> tasksListPage.isTaskInColumn(task.getTitle(), task.getStatusName()));
+        }
+        return tasksListPage;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
@@ -100,9 +109,16 @@ public class TaskByIdPage extends BasePage {
     public void deleteTask() {
         waitForSnackbarToDisappear();
         clickElement(deleteButton);
-        clickElement(confirmDeleteButton);
+        confirmDeleteIfRequired();
         waitForElementVisible(successDeletePopup);
-        waitForElementInvisible(successDeletePopup);
+    }
+
+    private void confirmDeleteIfRequired() {
+        if (getDriver().findElements(deleteConfirmDialog).isEmpty()) {
+            return;
+        }
+        waitForElementVisible(deleteConfirmDialog);
+        clickElement(confirmDeleteButton);
     }
 
     public String getTitleValue() {

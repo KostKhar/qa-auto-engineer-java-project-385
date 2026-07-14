@@ -43,7 +43,8 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public LabelPage clickCreateLabel() {
-        waitForElementClickable(CREATE_BUTTON).click();
+        waitForSnackbarToDisappear();
+        clickElement(CREATE_BUTTON);
         return new LabelPage(getDriver());
     }
 
@@ -61,11 +62,8 @@ public class LabelsListPage extends AbstractListPage<Label> {
         labelPage.openEditForm();
         labelPage.updateLabel(updatedLabel);
         LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
-        if (labelsListPage.getLabelByName(updatedLabel.getName()) == null) {
-            throw new IllegalStateException(
-                    String.format("Label '%s' was updated but not found in list", updatedLabel.getName())
-            );
-        }
+        waitForCondition(driver -> labelsListPage.isLabelExists(updatedLabel.getName())
+                && labelsListPage.isLabelNotExists(name));
         return labelsListPage;
     }
 

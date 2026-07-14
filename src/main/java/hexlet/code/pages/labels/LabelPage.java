@@ -22,6 +22,7 @@ public class LabelPage extends BasePage {
     private final By successUpdatedPopup = By.xpath("//*[contains(text(), 'updated')]");
     private final By successDeletePopup = By.xpath("//*[contains(text(), 'deleted')]");
     private final By validationError = By.xpath("//*[contains(@class, 'MuiFormHelperText-root') and contains(@class, 'Mui-error')]");
+    private final By requiredValidationError = By.xpath("//*[text()='Required']");
 
     public LabelPage(WebDriver driver) {
         super(driver);
@@ -33,14 +34,11 @@ public class LabelPage extends BasePage {
 
     public LabelsListPage createLabelAndReturnToList(Label label) {
         fillLabelForm(label);
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
         waitForElementVisible(successCreatePopup);
+        waitForElementInvisible(successCreatePopup);
         LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
-        if (labelsListPage.getLabelByName(label.getName()) == null) {
-            throw new IllegalStateException(
-                    String.format("Label '%s' was created but not found in list", label.getName())
-            );
-        }
+        waitForCondition(driver -> labelsListPage.isLabelExists(label.getName()));
         return labelsListPage;
     }
 
@@ -48,7 +46,7 @@ public class LabelPage extends BasePage {
         if (isEditFormOpen()) {
             return this;
         }
-        waitForElementClickable(editButton).click();
+        clickElement(editButton);
         waitForElementVisible(nameField);
         return this;
     }
@@ -64,23 +62,23 @@ public class LabelPage extends BasePage {
 
     public void updateLabel(Label label) {
         fillLabelForm(label);
-        waitForElementClickable(saveButton).click();
-        waitForElementVisible(successUpdatedPopup).isDisplayed();
+        clickElement(saveButton);
+        waitForElementVisible(successUpdatedPopup);
+        waitForElementInvisible(successUpdatedPopup);
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
     }
 
     public void deleteLabel() {
-        waitForElementClickable(deleteButton).click();
+        clickElement(deleteButton);
         waitForElementVisible(successDeletePopup);
     }
 
     public String getNameValue() {
         return waitForElementVisible(nameField).getAttribute("value");
     }
-
 
     public boolean isNameFieldVisible() {
         return waitForElementVisible(nameField).isDisplayed();
@@ -91,7 +89,12 @@ public class LabelPage extends BasePage {
     }
 
     public boolean validationErrorIsDisplayed() {
-        return waitForElementVisible(validationError).isDisplayed();
+        return hasValidationError();
+    }
+
+    public boolean hasValidationError() {
+        return hasFieldValidationError(nameField, validationError)
+                || hasVisibleGlobalValidationError(requiredValidationError);
     }
 
     public boolean isSaveButtonNotClickable() {
@@ -103,5 +106,4 @@ public class LabelPage extends BasePage {
             return true;
         }
     }
-
 }

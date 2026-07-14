@@ -6,6 +6,7 @@ import hexlet.code.pages.AbstractListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.TimeoutException;
 
 import java.util.List;
 
@@ -52,7 +53,8 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public StatusPage clickCreateStatus() {
-        waitForElementClickable(CREATE_BUTTON).click();
+        waitForSnackbarToDisappear();
+        clickElement(CREATE_BUTTON);
         return new StatusPage(getDriver());
     }
 
@@ -69,15 +71,27 @@ public class StatusesListPage extends AbstractListPage<Status> {
         StatusPage statusPage = openStatusByName(name);
         statusPage.openEditForm();
         statusPage.updateStatus(updatedStatus);
-        return new SideBar(getDriver()).getStatusesListPage();
+        StatusesListPage statusesListPage = new SideBar(getDriver()).getStatusesListPage();
+        waitForCondition(driver -> statusesListPage.isStatusExists(updatedStatus.getName())
+                && statusesListPage.isStatusNotExists(name));
+        return statusesListPage;
     }
 
     private Status findStatusInTable(String name) {
         return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
-    public Status getStatusByName(String name) {
+    private Status waitForStatusInTable(String name) {
+        try {
+            waitForCondition(driver -> findStatusInTable(name) != null);
+        } catch (TimeoutException e) {
+            return null;
+        }
         return findStatusInTable(name);
+    }
+
+    public Status getStatusByName(String name) {
+        return waitForStatusInTable(name);
     }
 
     public boolean isStatusExists(String name) {

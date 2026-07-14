@@ -24,22 +24,29 @@ public class StatusPage extends BasePage {
     }
 
     public void fillStatusForm(Status status) {
-        waitForElementClearAndSendKeys(nameField, status.getName());
-        waitForElementClearAndSendKeys(slugField, status.getSlug());
+        if (status.getName() != null) {
+            waitForElementClearAndSendKeys(nameField, status.getName());
+        }
+        if (status.getSlug() != null) {
+            waitForElementClearAndSendKeys(slugField, status.getSlug());
+        }
     }
 
     public StatusesListPage createStatusAndReturnToList(Status status) {
         fillStatusForm(status);
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
         waitForElementVisible(successCreatePopup);
-        return new SideBar(getDriver()).getStatusesListPage();
+        waitForElementInvisible(successCreatePopup);
+        StatusesListPage statusesListPage = new SideBar(getDriver()).getStatusesListPage();
+        waitForCondition(driver -> statusesListPage.isStatusExists(status.getName()));
+        return statusesListPage;
     }
 
     public StatusPage openEditForm() {
         if (isEditFormOpen()) {
             return this;
         }
-        waitForElementClickable(editButton).click();
+        clickElement(editButton);
         waitForElementVisible(nameField);
         return this;
     }
@@ -55,12 +62,14 @@ public class StatusPage extends BasePage {
 
     public boolean updateStatus(Status status) {
         fillStatusForm(status);
-        waitForElementClickable(saveButton).click();
-        return waitForElementVisible(successUpdatedPopup).isDisplayed();
+        clickElement(saveButton);
+        waitForElementVisible(successUpdatedPopup);
+        waitForElementInvisible(successUpdatedPopup);
+        return true;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
     }
 
     public String getNameValue() {
@@ -90,11 +99,11 @@ public class StatusPage extends BasePage {
     }
 
     public boolean isNameValidationErrorVisible() {
-        return hasBrowserValidationMessage(nameField) || hasVisibleValidationError(nameField, validationError);
+        return hasFieldValidationError(nameField, validationError);
     }
 
     public boolean isSlugValidationErrorVisible() {
-        return hasBrowserValidationMessage(slugField) || hasVisibleValidationError(slugField, validationError);
+        return hasFieldValidationError(slugField, validationError);
     }
 
     public boolean isRequiredValidationErrorVisible() {
