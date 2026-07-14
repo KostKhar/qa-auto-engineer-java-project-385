@@ -47,17 +47,11 @@ abstract class BasePageTest {
     }
 
     private String resolveBaseUrl() {
-        String baseUrlFromProperty = System.getProperty("APP_BASE_URL");
-        if (baseUrlFromProperty != null && !baseUrlFromProperty.isBlank()) {
-            return baseUrlFromProperty;
+        String baseurl = System.getenv("APP_BASE_URL");
+        if (baseurl == null || baseurl.trim().isEmpty()) {
+            baseurl = "http://localhost:5173";
         }
-
-        String baseUrlFromEnv = System.getenv("APP_BASE_URL");
-        if (baseUrlFromEnv != null && !baseUrlFromEnv.isBlank()) {
-            return baseUrlFromEnv;
-        }
-
-        throw new IllegalStateException("APP_BASE_URL environment variable must be set");
+        return baseurl;
     }
 
     private WebDriver createWebDriver(Configuration configuration) {
