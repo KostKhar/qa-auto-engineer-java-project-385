@@ -71,7 +71,7 @@ public class TaskByIdPage extends BasePage {
 
     public TasksListPage createTaskAndReturnToBoard(Task task) {
         fillTaskForm(task);
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
         waitForElementVisible(successCreatePopup);
         waitForElementInvisible(successCreatePopup);
         return new SideBar(getDriver()).getTaskListPage();
@@ -79,9 +79,10 @@ public class TaskByIdPage extends BasePage {
 
     public void updateTask(Task task) {
         fillTaskForm(task);
-        waitForElementClickable(saveButton).click();
+        clickElement(saveButton);
         try {
             waitForElementVisible(successUpdatedPopup);
+            waitForElementInvisible(successUpdatedPopup);
         } catch (TimeoutException ignored) {
             waitForPageLoaded();
         }
@@ -97,13 +98,11 @@ public class TaskByIdPage extends BasePage {
     }
 
     public void deleteTask() {
-        waitForElementClickable(deleteButton).click();
-        try {
-            waitForElementClickable(confirmDeleteButton).click();
-            waitForElementVisible(successDeletePopup);
-        } catch (TimeoutException e) {
-            System.out.println(e.getMessage());
-        }
+        waitForSnackbarToDisappear();
+        clickElement(deleteButton);
+        clickElement(confirmDeleteButton);
+        waitForElementVisible(successDeletePopup);
+        waitForElementInvisible(successDeletePopup);
     }
 
     public String getTitleValue() {

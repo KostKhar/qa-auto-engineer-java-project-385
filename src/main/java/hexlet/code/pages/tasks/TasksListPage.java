@@ -72,7 +72,8 @@ public class TasksListPage extends BasePage {
     }
 
     public TaskByIdPage clickCreateTask() {
-        waitForElementClickable(createButton).click();
+        waitForSnackbarToDisappear();
+        clickElement(createButton);
         return new TaskByIdPage(getDriver());
     }
 
@@ -82,7 +83,10 @@ public class TasksListPage extends BasePage {
     }
 
     public TaskByIdPage openTaskEditByTitle(String title) {
-        waitForElementClickable(editButtonByTitle(title)).click();
+        WebElement card = requireTaskCardElement(title);
+        scrollIntoView(card);
+        waitForSnackbarToDisappear();
+        clickElement(card.findElement(By.xpath(".//*[@data-testid='CreateIcon']")));
         return new TaskByIdPage(getDriver());
     }
 
@@ -165,14 +169,6 @@ public class TasksListPage extends BasePage {
 
     public void deleteTaskByTitle(String title) {
         openTaskEditByTitle(title).deleteTask();
-    }
-
-    private By editButtonByTitle(String title) {
-        return By.xpath(
-                "//*[contains(@class,'MuiTypography-h5') and normalize-space(text())="
-                        + xpathLiteral(title)
-                        + "]/ancestor::div[contains(@class,'MuiCard-root')]//*[@data-testid='CreateIcon']"
-        );
     }
 
     private WebElement requireTaskCardElement(String title) {

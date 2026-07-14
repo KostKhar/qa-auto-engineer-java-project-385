@@ -2,6 +2,7 @@ package hexlet.code.pages;
 
 import io.qameta.allure.Allure;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.TimeoutException;
@@ -19,6 +20,7 @@ import static hexlet.code.configure.ConfigurationManager.config;
 
 public abstract class BasePage {
     protected static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
+    private static final By SNACKBAR = By.xpath("//*[contains(@class,'MuiSnackbar-root')]");
     private WebDriver driver;
     private WebDriverWait wait;
 
@@ -70,7 +72,27 @@ public abstract class BasePage {
     }
 
     protected void waitForElementAndClick(By locator) {
-        waitForElementClickable(locator).click();
+        clickElement(locator);
+    }
+
+    protected void clickElement(By locator) {
+        clickElement(waitForElementClickable(locator));
+    }
+
+    protected void clickElement(WebElement element) {
+        scrollIntoView(element);
+        WebElement clickable = getWait().until(ExpectedConditions.elementToBeClickable(element));
+        try {
+            clickable.click();
+        } catch (ElementClickInterceptedException e) {
+            ((JavascriptExecutor) getDriver()).executeScript("arguments[0].click();", clickable);
+        }
+    }
+
+    protected void waitForSnackbarToDisappear() {
+        if (!getDriver().findElements(SNACKBAR).isEmpty()) {
+            waitForElementInvisible(SNACKBAR);
+        }
     }
 
     protected void waitForElementAndSendKeys(By locator, String text) {
