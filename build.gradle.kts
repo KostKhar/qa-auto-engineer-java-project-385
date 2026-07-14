@@ -44,14 +44,6 @@ dependencies {
     testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
  }
 
-tasks.test {
-    useJUnitPlatform()
-    val appBaseUrl = findProperty("APP_BASE_URL")?.toString()
-        ?: System.getenv("APP_BASE_URL")
-    if (!appBaseUrl.isNullOrBlank()) {
-        systemProperty("APP_BASE_URL", appBaseUrl)
-    }
-}
 
 
 sonar {

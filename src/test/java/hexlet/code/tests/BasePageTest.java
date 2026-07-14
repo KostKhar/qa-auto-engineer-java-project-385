@@ -33,10 +33,15 @@ abstract class BasePageTest {
 
     @BeforeEach
     void startBrowser() {
+        String baseUrl = System.getenv("APP_BASE_URL");
+        if (baseUrl == null || baseUrl.isEmpty()) {
+            baseUrl = "http://localhost:5173/";
+        }
+
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(configuration.baseUrl());
+        driver.get(baseUrl);
     }
 
     @AfterEach
