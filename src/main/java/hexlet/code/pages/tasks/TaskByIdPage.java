@@ -8,10 +8,14 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class TaskByIdPage extends BasePage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskByIdPage.class);
+
     private final By titleField = By.xpath("//*[@name='title']");
     private final By contentField = By.xpath("//*[@name='content']");
     private final By assigneeCombobox = By.xpath("(//*[@name='assignee_id']/ancestor::div[contains(@class,'MuiFormControl-root')]//div[@role='combobox'])[1]");
@@ -88,7 +92,8 @@ public class TaskByIdPage extends BasePage {
         try {
             waitForElementVisible(successUpdatedPopup);
             waitForElementInvisible(successUpdatedPopup);
-        } catch (TimeoutException ignored) {
+        } catch (TimeoutException e) {
+            LOGGER.warn("Timed out waiting for task update popup", e);
             waitForPageLoaded();
         }
     }

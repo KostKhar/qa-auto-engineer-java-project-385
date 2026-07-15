@@ -3,8 +3,12 @@ package hexlet.code.pages;
 import io.qameta.allure.Allure;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoginPage extends BasePage {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginPage.class);
 
     private final By loginField = By.xpath("//*[@name='username']");
     private final By passwordField = By.xpath("//*[@name='password']");
@@ -33,7 +37,7 @@ public class LoginPage extends BasePage {
         try {
             return waitForElementVisible(signInButton).isDisplayed();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            LOGGER.warn("Sign in button is not visible", e);
             return false;
         }
     }

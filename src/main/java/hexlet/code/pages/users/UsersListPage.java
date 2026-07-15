@@ -6,10 +6,14 @@ import hexlet.code.pages.AbstractListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class UsersListPage extends AbstractListPage<User> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsersListPage.class);
+
     private static final int ID_COLUMN_INDEX = 1;
     private static final int EMAIL_COLUMN_INDEX = 2;
     private static final int FIRSTNAME_COLUMN_INDEX = 3;
@@ -181,7 +185,7 @@ public class UsersListPage extends AbstractListPage<User> {
             input.sendKeys(query);
             waitForPageLoaded();
         } catch (org.openqa.selenium.TimeoutException e) {
-            System.out.println("Timed out waiting for user search");
+            LOGGER.warn("Timed out waiting for user search", e);
         }
     }
 }
