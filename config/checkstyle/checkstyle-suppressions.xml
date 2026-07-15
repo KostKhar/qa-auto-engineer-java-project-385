@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Test methods intentionally use method_condition_expected naming (BDD style) -->
+    <suppress files=".*[\\/]test[\\/].*" checks="MethodName"/>
+    <!-- Static wildcard imports from Assertions are idiomatic in tests -->
+    <suppress files=".*[\\/]test[\\/].*" checks="AvoidStarImport"/>
+    <!-- Protected fields in abstract base test classes are intentional for subclass access -->
+    <suppress files=".*[\\/]test[\\/].*" checks="VisibilityModifier"/>
+    <!-- Test data naturally uses literal values -->
+    <suppress files=".*[\\/]test[\\/].*" checks="MagicNumber"/>
+</suppressions>
