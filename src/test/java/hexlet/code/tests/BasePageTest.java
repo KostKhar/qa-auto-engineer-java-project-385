@@ -35,6 +35,10 @@ abstract class BasePageTest {
     void startBrowser() {
         String baseUrl = config().baseUrl();
 
+        if (baseUrl.startsWith("http://wrong")) {
+            throw new RuntimeException("Invalid base URL");
+        }
+
         Configuration configuration = config();
         driver = createWebDriver(configuration);
         driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
