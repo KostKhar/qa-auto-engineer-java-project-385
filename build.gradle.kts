@@ -15,13 +15,11 @@ java {
     }
 }
 val seleniumVersion = "4.40.0"
-val chromeVersion = "149"
 val allureVersion = "2.35.2"
 val lombokVersion = "1.18.38"
 val junit5 = "5.10.3"
 val faker = "1.0.2"
 val owner = "1.0.12"
-val assertj = "3.27.7"
 val webManager = "5.9.0"
 
 dependencies {
@@ -29,13 +27,11 @@ dependencies {
 
     implementation ("org.projectlombok:lombok:$lombokVersion")
     implementation("org.seleniumhq.selenium:selenium-java:$seleniumVersion")
-    implementation("org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion")
 
     implementation("org.aeonbits.owner:owner:$owner")
     implementation("io.qameta.allure:allure-java-commons:$allureVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter:$junit5")
-    testImplementation("org.assertj:assertj-core:$assertj")
     testImplementation("io.github.bonigarcia:webdrivermanager:$webManager")
     testImplementation("io.qameta.allure:allure-junit5:$allureVersion")
     testImplementation ("com.github.javafaker:javafaker:$faker")
@@ -46,6 +42,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    val appBaseUrl = providers.environmentVariable("APP_BASE_URL")
+        .orElse(providers.systemProperty("APP_BASE_URL"))
+    if (appBaseUrl.isPresent && appBaseUrl.get().isNotBlank()) {
+        environment("APP_BASE_URL", appBaseUrl.get())
+        systemProperty("APP_BASE_URL", appBaseUrl.get())
+    }
 }
 
 sonar {
