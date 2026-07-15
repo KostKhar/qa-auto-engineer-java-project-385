@@ -44,6 +44,10 @@ dependencies {
     testAnnotationProcessor ("org.projectlombok:lombok:$lombokVersion")
  }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 sonar {
   properties {
     property("sonar.projectKey", "KostKhar_qa-auto-engineer-java-project-385")
