@@ -40,10 +40,9 @@ public final class Waiter {
     }
 
     public void waitForPageLoaded() {
-        Allure.step("Ожидание загрузки страницы", () -> wait.until(webDriver ->
-                Objects.equals(((JavascriptExecutor) webDriver)
-                        .executeScript("return document.readyState"), "complete")
-        ));
+        Allure.step("Ожидание загрузки страницы",
+                () -> wait.until(webDriver -> Objects.equals(((JavascriptExecutor) webDriver)
+                        .executeScript("return document.readyState"), "complete")));
     }
 
     public WebElement waitForVisible(By locator) {
