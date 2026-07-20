@@ -20,11 +20,13 @@ public final class ConfigurationManager {
     }
 
     public static String currentProfile() {
-        return resolveProfile();
+        return System.getProperty(PROFILE_PROPERTY, DEFAULT_PROFILE);
     }
 
     private static Configuration createConfiguration() {
-        return ConfigFactory.create(Configuration.class, Map.of(PROFILE_PROPERTY, resolveProfile()));
+        String profile = resolveProfile();
+        System.setProperty(PROFILE_PROPERTY, profile);
+        return ConfigFactory.create(Configuration.class, Map.of(PROFILE_PROPERTY, profile));
     }
 
     private static String resolveProfile() {

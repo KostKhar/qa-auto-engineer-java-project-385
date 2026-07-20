@@ -15,22 +15,17 @@ public interface Configuration extends Config {
     String baseUrl();
 
     @Key("headless")
-    @DefaultValue("false")
     boolean headless();
 
     @Key("timeout")
-    @DefaultValue("10")
     int timeout();
 
     @Key("browser")
-    @DefaultValue("chromium")
     String browser();
 
     @Key("window.width")
-    @DefaultValue("1920")
     int windowWidth();
 
     @Key("window.height")
-    @DefaultValue("1080")
     int windowHeight();
 }

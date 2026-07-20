@@ -41,5 +41,5 @@ jobs:
             sleep 2
           done
           chmod +x gradlew
-          ./gradlew build sonar --info -Dprofile=ci
+          ./gradlew build sonar --info
           docker stop kanban-app

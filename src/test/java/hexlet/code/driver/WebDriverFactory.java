@@ -8,10 +8,12 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public final class WebDriverFactory {
     private static final Path SYSTEM_CHROMEDRIVER = Path.of("/usr/bin/chromedriver");
     private static final Path SYSTEM_CHROMIUM = Path.of("/usr/bin/chromium");
+    private static final Path SYSTEM_CHROMIUM_BROWSER = Path.of("/usr/bin/chromium-browser");
 
     private WebDriverFactory() {
     }
@@ -27,13 +29,33 @@ public final class WebDriverFactory {
 
     public static WebDriver create(Configuration configuration) {
         ChromeOptions options = new ChromeOptions();
-        if (configuration.headless()) {
+
+        Optional<String> chromiumBinary = resolveChromiumBinary();
+        boolean headless = configuration.headless() || chromiumBinary.isPresent();
+        if (headless) {
             options.addArguments("--headless=new");
         }
-        options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
-        if (Files.exists(SYSTEM_CHROMIUM)) {
-            options.setBinary(SYSTEM_CHROMIUM.toString());
-        }
+
+        options.addArguments(
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--remote-allow-origins=*"
+        );
+        options.addArguments("--window-size="
+                + configuration.windowWidth() + "," + configuration.windowHeight());
+
+        chromiumBinary.ifPresent(options::setBinary);
         return new ChromeDriver(options);
+    }
+
+    private static Optional<String> resolveChromiumBinary() {
+        if (Files.exists(SYSTEM_CHROMIUM)) {
+            return Optional.of(SYSTEM_CHROMIUM.toString());
+        }
+        if (Files.exists(SYSTEM_CHROMIUM_BROWSER)) {
+            return Optional.of(SYSTEM_CHROMIUM_BROWSER.toString());
+        }
+        return Optional.empty();
     }
 }
