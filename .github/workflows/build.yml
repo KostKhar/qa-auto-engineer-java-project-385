@@ -33,6 +33,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PROFILE: ci
         run: |
           docker run -d --name kanban-app --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
           for i in $(seq 1 30); do
@@ -40,5 +41,5 @@ jobs:
             sleep 2
           done
           chmod +x gradlew
-          ./gradlew build sonar --info
+          ./gradlew build sonar --info -Dprofile=ci
           docker stop kanban-app

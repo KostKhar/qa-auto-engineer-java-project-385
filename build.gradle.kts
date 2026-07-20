@@ -1,6 +1,5 @@
 plugins {
     java
-    jacoco
     id("io.qameta.allure") version "2.11.2"
     id("org.sonarqube") version "7.3.1.8318"
     checkstyle
@@ -43,35 +42,14 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
-    val appBaseUrl = providers.environmentVariable("APP_BASE_URL")
-        .orElse(providers.systemProperty("APP_BASE_URL"))
-    if (appBaseUrl.isPresent && appBaseUrl.get().isNotBlank()) {
-        environment("APP_BASE_URL", appBaseUrl.get())
-        systemProperty("APP_BASE_URL", appBaseUrl.get())
-    }
 }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
 
-tasks.sonar {
-    dependsOn(tasks.jacocoTestReport)
-}
 
 sonar {
     properties {
         property("sonar.projectKey", "KostKhar_qa-auto-engineer-java-project-385")
         property("sonar.organization", "kostkhar")
-        property(
-            "sonar.coverage.jacoco.xmlReportPaths",
-            layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
-        )
     }
 }
 

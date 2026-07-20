@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TasksListPageTest extends BasePageTest {
+class TasksListPageTest extends BaseTest {
     private final List<String> titlesToCleanup = new ArrayList<>();
     private TasksListPage tasksListPage;
 

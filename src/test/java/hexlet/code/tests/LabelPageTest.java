@@ -17,7 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LabelPageTest extends BasePageTest {
+class LabelPageTest extends BaseTest {
     private final List<String> namesToCleanup = new ArrayList<>();
     private LabelsListPage labelsListPage;
 

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LoginPageTest extends BasePageTest {
+class LoginPageTest extends BaseTest {
 
     @Test
     @DisplayName("Вход по логину и паролю")

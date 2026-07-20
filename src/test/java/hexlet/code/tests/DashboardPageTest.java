@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DashboardPageTest extends BasePageTest {
+class DashboardPageTest extends BaseTest {
 
     @Test
     @DisplayName("Нажатие кнопки выхода из системы")

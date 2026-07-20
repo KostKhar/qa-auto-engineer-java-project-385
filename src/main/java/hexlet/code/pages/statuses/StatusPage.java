@@ -25,20 +25,20 @@ public class StatusPage extends BasePage {
 
     public void fillStatusForm(Status status) {
         if (status.getName() != null) {
-            waitForElementClearAndSendKeys(nameField, status.getName());
+            elementAction().find(nameField).waitUntilVisible().clearAndSendKeys(status.getName());
         }
         if (status.getSlug() != null) {
-            waitForElementClearAndSendKeys(slugField, status.getSlug());
+            elementAction().find(slugField).waitUntilVisible().clearAndSendKeys(status.getSlug());
         }
     }
 
     public StatusesListPage createStatusAndReturnToList(Status status) {
         fillStatusForm(status);
-        clickElement(saveButton);
-        waitForElementVisible(successCreatePopup);
-        waitForElementInvisible(successCreatePopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successCreatePopup).waitUntilVisible();
+        elementAction().find(successCreatePopup).waitUntilInvisible();
         StatusesListPage statusesListPage = new SideBar(getDriver()).getStatusesListPage();
-        waitForCondition(driver -> statusesListPage.isStatusExists(status.getName()));
+        waiter().waitForCondition(driver -> statusesListPage.isStatusExists(status.getName()));
         return statusesListPage;
     }
 
@@ -46,14 +46,14 @@ public class StatusPage extends BasePage {
         if (isEditFormOpen()) {
             return this;
         }
-        clickElement(editButton);
-        waitForElementVisible(nameField);
+        elementAction().find(editButton).waitUntilClickable().click();
+        elementAction().find(nameField).waitUntilVisible();
         return this;
     }
 
     private boolean isEditFormOpen() {
         try {
-            WebElement field = waitForElementVisible(nameField);
+            WebElement field = elementAction().find(nameField).waitUntilVisible().getElement();
             return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
         } catch (TimeoutException e) {
             return false;
@@ -62,34 +62,34 @@ public class StatusPage extends BasePage {
 
     public boolean updateStatus(Status status) {
         fillStatusForm(status);
-        clickElement(saveButton);
-        waitForElementVisible(successUpdatedPopup);
-        waitForElementInvisible(successUpdatedPopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successUpdatedPopup).waitUntilVisible();
+        elementAction().find(successUpdatedPopup).waitUntilInvisible();
         return true;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        clickElement(saveButton);
+        elementAction().find(saveButton).waitUntilClickable().click();
     }
 
     public String getNameValue() {
-        return waitForElementVisible(nameField).getAttribute("value");
+        return elementAction().find(nameField).waitUntilVisible().getAttribute("value");
     }
 
     public String getSlugValue() {
-        return waitForElementVisible(slugField).getAttribute("value");
+        return elementAction().find(slugField).waitUntilVisible().getAttribute("value");
     }
 
     public boolean isNameFieldVisible() {
-        return waitForElementVisible(nameField).isDisplayed();
+        return elementAction().find(nameField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isSlugFieldVisible() {
-        return waitForElementVisible(slugField).isDisplayed();
+        return elementAction().find(slugField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return waitForElementVisible(saveButton).isDisplayed();
+        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
     }
 
     public boolean hasValidationError() {
@@ -99,17 +99,18 @@ public class StatusPage extends BasePage {
     }
 
     public boolean isNameValidationErrorVisible() {
-        return hasFieldValidationError(nameField, validationError);
+        return elementAction().hasFieldValidationError(nameField, validationError);
     }
 
     public boolean isSlugValidationErrorVisible() {
-        return hasFieldValidationError(slugField, validationError);
+        return elementAction().hasFieldValidationError(slugField, validationError);
     }
 
     public boolean isRequiredValidationErrorVisible() {
-        if (hasBrowserValidationMessage(nameField) || hasBrowserValidationMessage(slugField)) {
+        if (elementAction().hasBrowserValidationMessage(nameField)
+                || elementAction().hasBrowserValidationMessage(slugField)) {
             return true;
         }
-        return hasVisibleGlobalValidationError(requiredValidationError);
+        return elementAction().hasVisibleGlobalValidationError(requiredValidationError);
     }
 }

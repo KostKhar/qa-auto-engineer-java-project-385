@@ -1,11 +1,7 @@
-package hexlet.code.tests;
+package hexlet.code.driver;
 
 import hexlet.code.configure.Configuration;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -13,16 +9,14 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static hexlet.code.configure.ConfigurationManager.config;
-
-abstract class BasePageTest {
+public final class WebDriverFactory {
     private static final Path SYSTEM_CHROMEDRIVER = Path.of("/usr/bin/chromedriver");
     private static final Path SYSTEM_CHROMIUM = Path.of("/usr/bin/chromium");
 
-    protected WebDriver driver;
+    private WebDriverFactory() {
+    }
 
-    @BeforeAll
-    static void setupClass() {
+    public static void setupDriver() {
         if (Files.exists(SYSTEM_CHROMEDRIVER)) {
             System.setProperty("webdriver.chrome.driver", SYSTEM_CHROMEDRIVER.toString());
             return;
@@ -31,28 +25,7 @@ abstract class BasePageTest {
         WebDriverManager.chromedriver().setup();
     }
 
-    @BeforeEach
-    void startBrowser() {
-        String baseUrl = config().baseUrl();
-
-        if (baseUrl.startsWith("http://wrong")) {
-            throw new RuntimeException("Invalid base URL");
-        }
-
-        Configuration configuration = config();
-        driver = createWebDriver(configuration);
-        driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(baseUrl);
-    }
-
-    @AfterEach
-    void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-
-    private WebDriver createWebDriver(Configuration configuration) {
+    public static WebDriver create(Configuration configuration) {
         ChromeOptions options = new ChromeOptions();
         if (configuration.headless()) {
             options.addArguments("--headless=new");
@@ -63,5 +36,4 @@ abstract class BasePageTest {
         }
         return new ChromeDriver(options);
     }
-
 }

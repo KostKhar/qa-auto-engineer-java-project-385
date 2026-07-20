@@ -6,12 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-
-import static hexlet.code.configure.ConfigurationManager.config;
 
 public class LabelPage extends BasePage {
     private final By nameField = By.xpath("//*[@name='name']");
@@ -29,16 +23,16 @@ public class LabelPage extends BasePage {
     }
 
     public void fillLabelForm(Label label) {
-        waitForElementClearAndSendKeys(nameField, label.getName());
+        elementAction().find(nameField).waitUntilVisible().clearAndSendKeys(label.getName());
     }
 
     public LabelsListPage createLabelAndReturnToList(Label label) {
         fillLabelForm(label);
-        clickElement(saveButton);
-        waitForElementVisible(successCreatePopup);
-        waitForElementInvisible(successCreatePopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successCreatePopup).waitUntilVisible();
+        elementAction().find(successCreatePopup).waitUntilInvisible();
         LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
-        waitForCondition(driver -> labelsListPage.isLabelExists(label.getName()));
+        waiter().waitForCondition(driver -> labelsListPage.isLabelExists(label.getName()));
         return labelsListPage;
     }
 
@@ -46,14 +40,14 @@ public class LabelPage extends BasePage {
         if (isEditFormOpen()) {
             return this;
         }
-        clickElement(editButton);
-        waitForElementVisible(nameField);
+        elementAction().find(editButton).waitUntilClickable().click();
+        elementAction().find(nameField).waitUntilVisible();
         return this;
     }
 
     private boolean isEditFormOpen() {
         try {
-            WebElement field = waitForElementVisible(nameField);
+            WebElement field = elementAction().find(nameField).waitUntilVisible().getElement();
             return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
         } catch (TimeoutException e) {
             return false;
@@ -62,30 +56,30 @@ public class LabelPage extends BasePage {
 
     public void updateLabel(Label label) {
         fillLabelForm(label);
-        clickElement(saveButton);
-        waitForElementVisible(successUpdatedPopup);
-        waitForElementInvisible(successUpdatedPopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successUpdatedPopup).waitUntilVisible();
+        elementAction().find(successUpdatedPopup).waitUntilInvisible();
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        clickElement(saveButton);
+        elementAction().find(saveButton).waitUntilClickable().click();
     }
 
     public void deleteLabel() {
-        clickElement(deleteButton);
-        waitForElementVisible(successDeletePopup);
+        elementAction().find(deleteButton).waitUntilClickable().click();
+        elementAction().find(successDeletePopup).waitUntilVisible();
     }
 
     public String getNameValue() {
-        return waitForElementVisible(nameField).getAttribute("value");
+        return elementAction().find(nameField).waitUntilVisible().getAttribute("value");
     }
 
     public boolean isNameFieldVisible() {
-        return waitForElementVisible(nameField).isDisplayed();
+        return elementAction().find(nameField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return waitForElementVisible(saveButton).isDisplayed();
+        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
     }
 
     public boolean validationErrorIsDisplayed() {
@@ -93,14 +87,13 @@ public class LabelPage extends BasePage {
     }
 
     public boolean hasValidationError() {
-        return hasFieldValidationError(nameField, validationError)
-                || hasVisibleGlobalValidationError(requiredValidationError);
+        return elementAction().hasFieldValidationError(nameField, validationError)
+                || elementAction().hasVisibleGlobalValidationError(requiredValidationError);
     }
 
     public boolean isSaveButtonNotClickable() {
         try {
-            WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(config().timeout()));
-            wait.until(ExpectedConditions.elementToBeClickable(saveButton));
+            waiter().waitForClickable(saveButton);
             return false;
         } catch (Exception e) {
             return true;
