@@ -1,5 +1,6 @@
 package hexlet.code.pages.tasks;
 
+import hexlet.code.actions.ElementAction;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -37,21 +38,21 @@ public class TasksListPage extends BasePage {
     }
 
     public boolean isBoardVisible() {
-        waitForElementVisible(columnTitle);
+        elementAction().find(columnTitle).waitUntilVisible();
         return true;
     }
 
     public boolean isBoardLoaded() {
-        waitForElementVisible(columnTitle);
+        elementAction().find(columnTitle).waitUntilVisible();
         return getVisibleTaskCount() > 0;
     }
 
     public boolean isCreateButtonVisible() {
-        return waitForElementVisible(createButton).isDisplayed();
+        return elementAction().find(createButton).waitUntilVisible().isDisplayed();
     }
 
     public boolean isExportButtonVisible() {
-        return waitForElementVisible(exportButton).isDisplayed();
+        return elementAction().find(exportButton).waitUntilVisible().isDisplayed();
     }
 
     public List<String> getColumnNames() {
@@ -73,8 +74,8 @@ public class TasksListPage extends BasePage {
     }
 
     public TaskByIdPage clickCreateTask() {
-        waitForSnackbarToDisappear();
-        clickElement(createButton);
+        waiter().waitForSnackbarToDisappear();
+        elementAction().find(createButton).waitUntilClickable().click();
         return new TaskByIdPage(getDriver());
     }
 
@@ -85,16 +86,16 @@ public class TasksListPage extends BasePage {
 
     public TaskByIdPage openTaskEditByTitle(String title) {
         WebElement card = requireTaskCardElement(title);
-        scrollIntoView(card);
-        waitForSnackbarToDisappear();
-        clickElement(card.findElement(By.xpath(".//*[@data-testid='CreateIcon']")));
+        elementAction().scrollIntoView(card);
+        waiter().waitForSnackbarToDisappear();
+        elementAction().withElement(card.findElement(By.xpath(".//*[@data-testid='CreateIcon']"))).click();
         return new TaskByIdPage(getDriver());
     }
 
     public TasksListPage updateTaskByTitle(String title, Task updatedTask) {
         TasksListPage tasksListPage = openTaskEditByTitle(title).updateTaskAndReturnToBoard(updatedTask);
         if (updatedTask.getStatusName() != null) {
-            waitForCondition(driver -> tasksListPage.isTaskInColumn(title, updatedTask.getStatusName()));
+            waiter().waitForCondition(driver -> tasksListPage.isTaskInColumn(title, updatedTask.getStatusName()));
         }
         return tasksListPage;
     }
@@ -112,7 +113,7 @@ public class TasksListPage extends BasePage {
             WebElement column = findColumnContent(columnName);
             return !column.findElements(By.xpath(
                     ".//*[contains(@class,'MuiTypography-h5') and normalize-space(text())="
-                            + xpathLiteral(title) + "]"
+                            + ElementAction.xpathLiteral(title) + "]"
             )).isEmpty();
         } catch (Exception e) {
             return false;
@@ -131,37 +132,37 @@ public class TasksListPage extends BasePage {
         if (labelName == null || labelName.isEmpty()) {
             return;
         }
-            waitForElementClickable(labelFilter).click();
-            By option = By.xpath(
-                    "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(labelName) + "]"
-            );
-            waitForElementClickable(option).click();
-        waitForPageLoaded();
+        elementAction().find(labelFilter).waitUntilClickable().click();
+        By option = By.xpath(
+                "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + ElementAction.xpathLiteral(labelName) + "]"
+        );
+        elementAction().find(option).waitUntilClickable().click();
+        waiter().waitForPageLoaded();
     }
 
 
     public boolean waitUntilTaskHidden(String title) {
-        return waitForCondition(driver -> !isTaskExists(title));
+        return waiter().waitForCondition(driver -> !isTaskExists(title));
     }
 
     public void moveTaskToColumnByDrag(String title, String targetColumnName) {
-        waitForCondition(driver -> isTaskExists(title));
+        waiter().waitForCondition(driver -> isTaskExists(title));
 
         WebElement sourceCard = requireTaskCardElement(title);
         WebElement targetColumn = findColumnContent(targetColumnName);
 
         performDragToColumn(sourceCard, targetColumn);
-        if (!waitForConditionOptional(
+        if (!waiter().waitForConditionOptional(
                 driver -> isTaskInColumn(title, targetColumnName), Duration.ofSeconds(DRAG_FALLBACK_WAIT_SECONDS))) {
-            dragAndDrop(sourceCard, targetColumn);
+            elementAction().dragAndDrop(sourceCard, targetColumn);
         }
-        waitForCondition(driver -> isTaskInColumn(title, targetColumnName), Duration.ofSeconds(DRAG_WAIT_SECONDS));
+        waiter().waitForCondition(driver -> isTaskInColumn(title, targetColumnName), Duration.ofSeconds(DRAG_WAIT_SECONDS));
     }
 
     private void performDragToColumn(WebElement sourceCard, WebElement targetColumn) {
         WebElement dragSource = findDragHandle(sourceCard);
-        scrollIntoView(dragSource);
-        scrollIntoView(targetColumn);
+        elementAction().scrollIntoView(dragSource);
+        elementAction().scrollIntoView(targetColumn);
 
         int targetX = Math.max(DRAG_MIN_OFFSET, targetColumn.getSize().getWidth() / 2);
         int targetY = Math.max(DRAG_MIN_OFFSET, targetColumn.getSize().getHeight() / 2);
@@ -192,7 +193,7 @@ public class TasksListPage extends BasePage {
     public TasksListPage moveTaskToStatusByEdit(String title, String newStatusName) {
         TasksListPage tasksListPage = openTaskEditByTitle(title)
                 .updateTaskAndReturnToBoard(new Task(title, null, null, newStatusName));
-        waitForCondition(driver -> tasksListPage.isTaskInColumn(title, newStatusName));
+        waiter().waitForCondition(driver -> tasksListPage.isTaskInColumn(title, newStatusName));
         return tasksListPage;
     }
 
@@ -212,7 +213,7 @@ public class TasksListPage extends BasePage {
         try {
             return getDriver().findElement(By.xpath(
                     "//*[contains(@class,'MuiTypography-h5') and normalize-space(text())="
-                            + xpathLiteral(title)
+                            + ElementAction.xpathLiteral(title)
                             + "]/ancestor::div[contains(@class,'MuiCard-root')]"
             ));
         } catch (NoSuchElementException e) {
@@ -223,12 +224,12 @@ public class TasksListPage extends BasePage {
     private WebElement findColumnContent(String columnName) {
         return getDriver().findElement(By.xpath(
                 "//*[contains(@class,'MuiTypography-subtitle1') and normalize-space(text())="
-                        + xpathLiteral(columnName) + "]/following-sibling::div[1]"
+                        + ElementAction.xpathLiteral(columnName) + "]/following-sibling::div[1]"
         ));
     }
 
     private void selectFilterOption(By filterCombobox, String optionText) {
-        selectComboboxOption(filterCombobox, optionText);
-        waitForPageLoaded();
+        elementAction().selectComboboxOption(filterCombobox, optionText);
+        waiter().waitForPageLoaded();
     }
 }

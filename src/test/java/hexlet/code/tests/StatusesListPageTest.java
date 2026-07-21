@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StatusesListPageTest extends BasePageTest {
+class StatusesListPageTest extends BaseTest {
     private static final List<Status> SEED_STATUSES = List.of(
             new Status("Draft", "draft"),
             new Status("To Review", "to-review"),

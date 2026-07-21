@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UsersListPageTest extends BasePageTest {
+class UsersListPageTest extends BaseTest {
 
     private final List<String> emailsToCleanup = new ArrayList<>();
     private UsersListPage usersListPage;

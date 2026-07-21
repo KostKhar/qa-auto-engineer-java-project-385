@@ -6,8 +6,7 @@ import org.aeonbits.owner.Config;
 @Config.Sources({
         "system:properties",
         "system:env",
-        "classpath:config.properties",
-        "classpath:allure.properties"
+        "classpath:config-${profile}.properties"
 })
 public interface Configuration extends Config {
 
@@ -25,10 +24,8 @@ public interface Configuration extends Config {
     String browser();
 
     @Key("window.width")
-    @DefaultValue("1920")
     int windowWidth();
 
     @Key("window.height")
-    @DefaultValue("1080")
     int windowHeight();
 }

@@ -2,7 +2,7 @@ package hexlet.code.pages.statuses;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
-import hexlet.code.pages.AbstractListPage;
+import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,18 +10,15 @@ import org.openqa.selenium.TimeoutException;
 
 import java.util.List;
 
-public class StatusesListPage extends AbstractListPage<Status> {
+public class StatusesListPage extends BasePage {
     private static final int NAME_COLUMN_INDEX = 2;
     private static final int SLUG_COLUMN_INDEX = 3;
 
+    private final Table<Status> table;
+
     public StatusesListPage(WebDriver driver) {
         super(driver);
-        initTable(createTable(driver));
-        waitForElementVisible(CREATE_BUTTON);
-    }
-
-    private static Table<Status> createTable(WebDriver driver) {
-        return new Table<>(driver, waitForTableContainer(driver), row -> {
+        this.table = Table.create(driver, row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
             String slug;
             if (cells.size() > SLUG_COLUMN_INDEX) {
@@ -36,25 +33,35 @@ public class StatusesListPage extends AbstractListPage<Status> {
                     slug
             );
         });
+        table.waitForReady();
     }
 
     public boolean isTableVisible() {
-        waitForElementVisible(CREATE_BUTTON);
-        return !getDriver().findElements(TABLE_CONTAINER).isEmpty()
-                || waitForElementVisible(LIST_ROOT).isDisplayed();
+        return table.isVisible();
     }
 
     public int getStatusesCount() {
-        return getRowCount();
+        return table.getRowCount();
     }
 
     public boolean isTableEmpty() {
         return getStatusesCount() == 0;
     }
 
+    public boolean hasColumnHeaders(String... expectedHeaders) {
+        return table.hasColumnHeaders(expectedHeaders);
+    }
+
+    public boolean isCreateButtonVisible() {
+        return table.isCreateButtonVisible();
+    }
+
+    public boolean isTableLoaded() {
+        return table.isTableLoaded();
+    }
+
     public StatusPage clickCreateStatus() {
-        waitForSnackbarToDisappear();
-        clickElement(CREATE_BUTTON);
+        table.clickCreateButton();
         return new StatusPage(getDriver());
     }
 
@@ -72,18 +79,18 @@ public class StatusesListPage extends AbstractListPage<Status> {
         statusPage.openEditForm();
         statusPage.updateStatus(updatedStatus);
         StatusesListPage statusesListPage = new SideBar(getDriver()).getStatusesListPage();
-        waitForCondition(driver -> statusesListPage.isStatusExists(updatedStatus.getName())
+        waiter().waitForCondition(driver -> statusesListPage.isStatusExists(updatedStatus.getName())
                 && statusesListPage.isStatusNotExists(name));
         return statusesListPage;
     }
 
     private Status findStatusInTable(String name) {
-        return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
+        return table.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
     private Status waitForStatusInTable(String name) {
         try {
-            waitForCondition(driver -> findStatusInTable(name) != null);
+            waiter().waitForCondition(driver -> findStatusInTable(name) != null);
         } catch (TimeoutException e) {
             return null;
         }
@@ -95,7 +102,7 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public boolean isStatusExists(String name) {
-        return getTable().containsValueInColumn(NAME_COLUMN_INDEX, name);
+        return table.containsValueInColumn(NAME_COLUMN_INDEX, name);
     }
 
     public boolean isStatusNotExists(String name) {
@@ -103,11 +110,11 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public boolean isStatusNotExistsBySlug(String slug) {
-        return !getTable().containsValueInColumn(SLUG_COLUMN_INDEX, slug);
+        return !table.containsValueInColumn(SLUG_COLUMN_INDEX, slug);
     }
 
     public Status getStatusAtRow(int rowIndex) {
-        return getTable().getRowAsObject(rowIndex);
+        return table.getRowAsObject(rowIndex);
     }
 
     public boolean isRowContainsKeyField(int rowIndex) {
@@ -134,10 +141,10 @@ public class StatusesListPage extends AbstractListPage<Status> {
     }
 
     public void selectAllStatuses() {
-        selectAllRows();
+        table.selectAllRows();
     }
 
     public void deleteSelectedStatuses() {
-        deleteSelectedRows();
+        table.deleteSelectedRows();
     }
 }

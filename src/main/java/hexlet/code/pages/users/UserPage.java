@@ -34,42 +34,42 @@ public class UserPage extends BasePage {
     public UsersListPage createUserAndReturnToList(User user) {
         createUser(user);
         UsersListPage usersListPage = new SideBar(getDriver()).getUsersListPage();
-        waitForCondition(driver -> usersListPage.isUserExists(user.getEmail()));
+        waiter().waitForCondition(driver -> usersListPage.isUserExists(user.getEmail()));
         return usersListPage;
     }
 
     public void fillUserForm(User user) {
         openEditForm();
         if (user.getEmail() != null) {
-            waitForElementClearAndSendKeys(emailField, user.getEmail());
+            elementAction().find(emailField).waitUntilVisible().clearAndSendKeys(user.getEmail());
         }
         if (user.getFirstname() != null) {
-            waitForElementClearAndSendKeys(firstNameField, user.getFirstname());
+            elementAction().find(firstNameField).waitUntilVisible().clearAndSendKeys(user.getFirstname());
         }
         if (user.getLastname() != null) {
-            waitForElementClearAndSendKeys(lastNameField, user.getLastname());
+            elementAction().find(lastNameField).waitUntilVisible().clearAndSendKeys(user.getLastname());
         }
     }
 
     public void createUser(User user) {
         fillUserForm(user);
-        clickElement(saveButton);
-        waitForElementVisible(successCreatePopup);
-        waitForElementInvisible(successCreatePopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successCreatePopup).waitUntilVisible();
+        elementAction().find(successCreatePopup).waitUntilInvisible();
     }
 
     public UserPage openEditForm() {
         if (isEditFormOpen()) {
             return this;
         }
-        clickElement(editButton);
-        waitForElementVisible(emailField);
+        elementAction().find(editButton).waitUntilClickable().click();
+        elementAction().find(emailField).waitUntilVisible();
         return this;
     }
 
     private boolean isEditFormOpen() {
         try {
-            WebElement field = waitForElementVisible(emailField);
+            WebElement field = elementAction().find(emailField).waitUntilVisible().getElement();
             return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
         } catch (TimeoutException e) {
             return false;
@@ -78,55 +78,55 @@ public class UserPage extends BasePage {
 
     public boolean updateUser(User user) {
         fillUserForm(user);
-        clickElement(saveButton);
-        waitForElementVisible(successUpdatedPopup);
-        waitForElementInvisible(successUpdatedPopup);
+        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(successUpdatedPopup).waitUntilVisible();
+        elementAction().find(successUpdatedPopup).waitUntilInvisible();
         return true;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        clickElement(saveButton);
+        elementAction().find(saveButton).waitUntilClickable().click();
     }
 
     public String getEmailValue() {
-        return waitForElementVisible(emailField).getAttribute(VALUE_ATTRIBUTE);
+        return elementAction().find(emailField).waitUntilVisible().getAttribute(VALUE_ATTRIBUTE);
     }
 
     public String getFirstNameValue() {
-        return waitForElementVisible(firstNameField).getAttribute(VALUE_ATTRIBUTE);
+        return elementAction().find(firstNameField).waitUntilVisible().getAttribute(VALUE_ATTRIBUTE);
     }
 
     public String getLastNameValue() {
-        return waitForElementVisible(lastNameField).getAttribute(VALUE_ATTRIBUTE);
+        return elementAction().find(lastNameField).waitUntilVisible().getAttribute(VALUE_ATTRIBUTE);
     }
 
     public boolean isEmailFieldVisible() {
-        return waitForElementVisible(emailField).isDisplayed();
+        return elementAction().find(emailField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isFirstNameFieldVisible() {
-        return waitForElementVisible(firstNameField).isDisplayed();
+        return elementAction().find(firstNameField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isLastNameFieldVisible() {
-        return waitForElementVisible(lastNameField).isDisplayed();
+        return elementAction().find(lastNameField).waitUntilVisible().isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return waitForElementVisible(saveButton).isDisplayed();
+        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
     }
 
     public boolean isUpdateSuccessful() {
-        return waitForElementVisible(successUpdatedPopup).isDisplayed();
+        return elementAction().find(successUpdatedPopup).waitUntilVisible().isDisplayed();
     }
 
     public boolean isEmailValidationErrorVisible() {
-        return hasFieldValidationError(emailField, emailValidationError);
+        return elementAction().hasFieldValidationError(emailField, emailValidationError);
     }
 
     public boolean isRequiredValidationErrorVisible() {
-        return hasBrowserValidationMessage(emailField)
-                || hasVisibleGlobalValidationError(requiredValidationError);
+        return elementAction().hasBrowserValidationMessage(emailField)
+                || elementAction().hasVisibleGlobalValidationError(requiredValidationError);
     }
 
     public boolean hasValidationError() {

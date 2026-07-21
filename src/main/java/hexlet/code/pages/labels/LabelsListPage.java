@@ -2,7 +2,7 @@ package hexlet.code.pages.labels;
 
 import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
-import hexlet.code.pages.AbstractListPage;
+import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,13 +10,15 @@ import org.openqa.selenium.TimeoutException;
 
 import java.util.List;
 
-public class LabelsListPage extends AbstractListPage<Label> {
+public class LabelsListPage extends BasePage {
     private static final int NAME_COLUMN_INDEX = 2;
     private static final int CREATED_AT_COLUMN_INDEX = 3;
 
+    private final Table<Label> table;
+
     public LabelsListPage(WebDriver driver) {
         super(driver);
-        initTable(new Table<>(driver, waitForListTableContainer(driver), row -> {
+        this.table = Table.createForList(driver, row -> {
             List<WebElement> cells = row.findElements(By.xpath(".//td"));
             String createdAt;
             if (cells.size() > CREATED_AT_COLUMN_INDEX) {
@@ -30,21 +32,31 @@ public class LabelsListPage extends AbstractListPage<Label> {
                     cells.get(NAME_COLUMN_INDEX).getText().trim(),
                     createdAt
             );
-        }));
+        });
     }
 
     public boolean isTableVisible() {
-        waitForElementVisible(TABLE_CONTAINER);
-        return true;
+        return table.isTableContainerVisible();
     }
 
     public int getLabelsCount() {
-        return getRowCount();
+        return table.getRowCount();
+    }
+
+    public boolean hasColumnHeaders(String... expectedHeaders) {
+        return table.hasColumnHeaders(expectedHeaders);
+    }
+
+    public boolean isCreateButtonVisible() {
+        return table.isCreateButtonVisible();
+    }
+
+    public boolean isTableLoaded() {
+        return table.isTableLoaded();
     }
 
     public LabelPage clickCreateLabel() {
-        waitForSnackbarToDisappear();
-        clickElement(CREATE_BUTTON);
+        table.clickCreateButton();
         return new LabelPage(getDriver());
     }
 
@@ -62,18 +74,18 @@ public class LabelsListPage extends AbstractListPage<Label> {
         labelPage.openEditForm();
         labelPage.updateLabel(updatedLabel);
         LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
-        waitForCondition(driver -> labelsListPage.isLabelExists(updatedLabel.getName())
+        waiter().waitForCondition(driver -> labelsListPage.isLabelExists(updatedLabel.getName())
                 && labelsListPage.isLabelNotExists(name));
         return labelsListPage;
     }
 
     private Label findLabelInTable(String name) {
-        return getTable().findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
+        return table.findRowObjectByColumnValue(NAME_COLUMN_INDEX, name);
     }
 
     private Label waitForLabelInTable(String name) {
         try {
-            waitForCondition(driver -> findLabelInTable(name) != null);
+            waiter().waitForCondition(driver -> findLabelInTable(name) != null);
         } catch (TimeoutException e) {
             return null;
         }
@@ -85,7 +97,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public boolean isLabelExists(String name) {
-        return getTable().containsValueInColumn(NAME_COLUMN_INDEX, name);
+        return table.containsValueInColumn(NAME_COLUMN_INDEX, name);
     }
 
     public boolean isLabelNotExists(String name) {
@@ -93,7 +105,7 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public boolean isRowContainsKeyFields(int rowIndex) {
-        Label label = getTable().getRowAsObject(rowIndex);
+        Label label = table.getRowAsObject(rowIndex);
         return !label.getName().isBlank() && !label.getCreatedAt().isBlank();
     }
 
@@ -116,10 +128,10 @@ public class LabelsListPage extends AbstractListPage<Label> {
     }
 
     public void selectAllLabels() {
-        selectAllRows();
+        table.selectAllRows();
     }
 
     public void deleteSelectedLabels() {
-        deleteSelectedRows();
+        table.deleteSelectedRows();
     }
 }

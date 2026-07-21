@@ -1,5 +1,6 @@
 package hexlet.code.components;
 
+import hexlet.code.actions.ElementAction;
 import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.labels.LabelsListPage;
 import hexlet.code.pages.statuses.StatusesListPage;
@@ -7,16 +8,10 @@ import hexlet.code.pages.tasks.TasksListPage;
 import hexlet.code.pages.users.UsersListPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-
-import static hexlet.code.configure.ConfigurationManager.config;
 
 public class SideBar {
+    private final ElementAction elementAction;
     private final WebDriver driver;
-    private final WebDriverWait wait;
 
     private final By dashboardButton = By.xpath("//*[@href='#/']");
     private final By tasksButton = By.xpath("//*[@href='#/tasks']");
@@ -26,7 +21,7 @@ public class SideBar {
 
     public SideBar(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
+        this.elementAction = new ElementAction(driver);
     }
 
     public DashboardPage getDashboardPage() {
@@ -55,6 +50,6 @@ public class SideBar {
     }
 
     private void clickLink(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+        elementAction.find(locator).waitUntilClickable().click();
     }
 }

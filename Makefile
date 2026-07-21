@@ -17,10 +17,13 @@ clean:
 start:
 	docker run --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
 
+test-local:
+	PROFILE=local ./gradlew clean test
+
 test:
-	./gradlew clean test 
+	PROFILE=ci ./gradlew clean test
 
 lint:
 	./gradlew checkstyleMain checkstyleTest
 
-.PHONY: setup clean start test lint
+.PHONY: setup clean start test test-ci lint

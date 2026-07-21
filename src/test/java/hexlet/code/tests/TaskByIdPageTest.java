@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskByIdPageTest extends BasePageTest {
+class TaskByIdPageTest extends BaseTest {
     private final List<String> titlesToCleanup = new ArrayList<>();
     private TasksListPage tasksListPage;
 
