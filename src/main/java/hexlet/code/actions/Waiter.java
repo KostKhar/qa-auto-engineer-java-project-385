@@ -1,6 +1,7 @@
 package hexlet.code.actions;
 
 import io.qameta.allure.Allure;
+import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
@@ -15,6 +16,7 @@ import java.util.function.Function;
 
 import static hexlet.code.configure.ConfigurationManager.config;
 
+@Getter
 public final class Waiter {
     public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
     private static final By SNACKBAR = By.xpath("//*[contains(@class,'MuiSnackbar-root')]");
@@ -29,14 +31,6 @@ public final class Waiter {
     public Waiter(WebDriver driver, Duration timeout) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, timeout);
-    }
-
-    public WebDriver getDriver() {
-        return driver;
-    }
-
-    public WebDriverWait getWait() {
-        return wait;
     }
 
     public void waitForPageLoaded() {
@@ -67,8 +61,8 @@ public final class Waiter {
         return wait.until(condition);
     }
 
-    public boolean waitForCondition(Function<WebDriver, Boolean> condition, Duration timeout) {
-        return new WebDriverWait(driver, timeout).until(condition);
+    public void waitForCondition(Function<WebDriver, Boolean> condition, Duration timeout) {
+        new WebDriverWait(driver, timeout).until(condition);
     }
 
     public boolean waitForConditionOptional(Function<WebDriver, Boolean> condition, Duration timeout) {

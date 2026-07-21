@@ -8,18 +8,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 
 import static hexlet.code.configure.ConfigurationManager.config;
 
 public abstract class AbstractListPage<T> extends BasePage {
-    protected static final By CREATE_BUTTON = By.xpath("//*[@aria-label='Create']");
-    protected static final By DELETE_BUTTON = By.xpath("//*[@aria-label='Delete']");
-    protected static final By SELECT_ALL_CHECKBOX = By.xpath(
-            "//*[contains(@class, 'RaList-main')]//thead//span[contains(@class, 'MuiCheckbox-root')]"
-    );
-    protected static final By SUCCESS_DELETE_POPUP = By.xpath("//*[contains(text(), 'deleted')]");
     protected static final By TABLE_CONTAINER = By.className("RaList-main");
     protected static final By LIST_ROOT = By.xpath(
             "//*[@aria-label='Create']/ancestor::div[contains(@class, 'RaList')][1]"
@@ -49,37 +42,5 @@ public abstract class AbstractListPage<T> extends BasePage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(TABLE_CONTAINER));
     }
 
-    protected void initTable(Table<T> table) {
-        this.table = table;
-    }
 
-
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        List<String> headers = getTable().getHeaders();
-        return Arrays.stream(expectedHeaders)
-                .allMatch(expected -> headers.stream()
-                        .anyMatch(header -> header.equalsIgnoreCase(expected)));
-    }
-
-    public boolean isCreateButtonVisible() {
-        return waitForElementVisible(CREATE_BUTTON).isDisplayed();
-    }
-
-    public boolean isTableLoaded() {
-        waitForElementVisible(TABLE_CONTAINER);
-        return !getTable().getRows().isEmpty();
-    }
-
-    public int getRowCount() {
-        return getTable().getRows().size();
-    }
-
-    protected void selectAllRows() {
-        waitForElementClickable(SELECT_ALL_CHECKBOX).click();
-    }
-
-    protected void deleteSelectedRows() {
-        waitForElementClickable(DELETE_BUTTON).click();
-        waitForElementVisible(SUCCESS_DELETE_POPUP);
-    }
 }
