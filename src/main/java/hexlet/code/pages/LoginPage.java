@@ -23,22 +23,22 @@ public class LoginPage extends BasePage {
 
     public DashboardPage signInByLoginAndPassword(String username, String password) {
         Allure.step("Заполнение поля логин",
-                () -> elementAction().find(loginField).waitUntilVisible().sendKeys(username));
+                () -> elementAction().find(loginField).sendKeys(username));
         Allure.step("Заполнение поля пароль",
-                () -> elementAction().find(passwordField).waitUntilVisible().sendKeys(password));
+                () -> elementAction().find(passwordField).sendKeys(password));
         Allure.step("Нажимаем на кнопку Sign in",
-                () -> elementAction().find(signInButton).waitUntilClickable().click());
+                () -> elementAction().find(signInButton).click());
         waiter().waitForPageLoaded();
         return new DashboardPage(getDriver());
     }
 
     public String getErrorMessageText() {
-        return elementAction().find(errorMessage).waitUntilVisible().getText();
+        return elementAction().find(errorMessage).getText();
     }
 
     public boolean isSignInButtonVisible() {
         try {
-            return elementAction().find(signInButton).waitUntilVisible().isDisplayed();
+            return elementAction().find(signInButton).isDisplayed();
         } catch (Exception e) {
             LOGGER.warn("Sign in button is not visible", e);
             return false;

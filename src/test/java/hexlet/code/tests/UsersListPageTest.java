@@ -6,7 +6,6 @@ import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.users.User;
 import hexlet.code.pages.users.UsersListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsersListPageTest extends BaseTest {
 
-    private final List<String> emailsToCleanup = new ArrayList<>();
     private UsersListPage usersListPage;
 
     private static Stream<String> seedUserEmails() {
@@ -34,28 +33,6 @@ class UsersListPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         this.usersListPage = dashboardPage.getSideBar().getUsersListPage();
         assertNotNull(this.usersListPage, "User list page is null");
-    }
-
-    @AfterEach
-    void cleanupCreatedUsers() {
-        try {
-            UsersListPage listPage = new SideBar(driver).getUsersListPage();
-            for (String email : emailsToCleanup) {
-                if (listPage.isUserExists(email)) {
-                    listPage.deleteUserByEmail(email);
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to clean up users", e);
-        } finally {
-            emailsToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String email) {
-        if (email != null && !email.isBlank()) {
-            emailsToCleanup.add(email);
-        }
     }
 
     @Test
@@ -123,8 +100,8 @@ class UsersListPageTest extends BaseTest {
     void checkBulkDeleteUsers() {
         User user1 = RandomTestData.getUser();
         User user2 = RandomTestData.getUser();
-        trackForCleanup(user1.getEmail());
-        trackForCleanup(user2.getEmail());
+        cleanup().trackUser(user1.getEmail());
+        cleanup().trackUser(user2.getEmail());
 
         usersListPage = usersListPage.clickCreateUser().createUserAndReturnToList(user1);
         usersListPage = usersListPage.clickCreateUser().createUserAndReturnToList(user2);
@@ -136,7 +113,7 @@ class UsersListPageTest extends BaseTest {
         usersListPage = new SideBar(driver).getUsersListPage();
         assertTrue(usersListPage.isUserNotExists(user1.getEmail()));
         assertTrue(usersListPage.isUserNotExists(user2.getEmail()));
-        emailsToCleanup.clear();
+        cleanup().clear();
     }
 
     @Test

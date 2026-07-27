@@ -38,21 +38,21 @@ public class TasksListPage extends BasePage {
     }
 
     public boolean isBoardVisible() {
-        elementAction().find(columnTitle).waitUntilVisible();
+        waiter().waitForVisible(columnTitle);
         return true;
     }
 
     public boolean isBoardLoaded() {
-        elementAction().find(columnTitle).waitUntilVisible();
+        waiter().waitForVisible(columnTitle);
         return getVisibleTaskCount() > 0;
     }
 
     public boolean isCreateButtonVisible() {
-        return elementAction().find(createButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(createButton).isDisplayed();
     }
 
     public boolean isExportButtonVisible() {
-        return elementAction().find(exportButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(exportButton).isDisplayed();
     }
 
     public List<String> getColumnNames() {
@@ -74,8 +74,8 @@ public class TasksListPage extends BasePage {
     }
 
     public TaskByIdPage clickCreateTask() {
-        waiter().waitForSnackbarToDisappear();
-        elementAction().find(createButton).waitUntilClickable().click();
+        waitForSnackbarToDisappear();
+        elementAction().find(createButton).click();
         return new TaskByIdPage(getDriver());
     }
 
@@ -87,8 +87,8 @@ public class TasksListPage extends BasePage {
     public TaskByIdPage openTaskEditByTitle(String title) {
         WebElement card = requireTaskCardElement(title);
         elementAction().scrollIntoView(card);
-        waiter().waitForSnackbarToDisappear();
-        elementAction().withElement(card.findElement(By.xpath(".//*[@data-testid='CreateIcon']"))).click();
+        waitForSnackbarToDisappear();
+        elementAction(card.findElement(By.xpath(".//*[@data-testid='CreateIcon']"))).click();
         return new TaskByIdPage(getDriver());
     }
 
@@ -132,11 +132,11 @@ public class TasksListPage extends BasePage {
         if (labelName == null || labelName.isEmpty()) {
             return;
         }
-        elementAction().find(labelFilter).waitUntilClickable().click();
+        elementAction().find(labelFilter).click();
         By option = By.xpath(
                 "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + ElementAction.xpathLiteral(labelName) + "]"
         );
-        elementAction().find(option).waitUntilClickable().click();
+        elementAction().find(option).click();
         waiter().waitForPageLoaded();
     }
 
@@ -230,6 +230,7 @@ public class TasksListPage extends BasePage {
 
     private void selectFilterOption(By filterCombobox, String optionText) {
         elementAction().selectComboboxOption(filterCombobox, optionText);
+        waitForSnackbarToDisappear();
         waiter().waitForPageLoaded();
     }
 }

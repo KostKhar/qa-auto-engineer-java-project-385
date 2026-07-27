@@ -25,18 +25,18 @@ public class StatusPage extends BasePage {
 
     public void fillStatusForm(Status status) {
         if (status.getName() != null) {
-            elementAction().find(nameField).waitUntilVisible().clearAndSendKeys(status.getName());
+            elementAction().find(nameField).clearAndSendKeys(status.getName());
         }
         if (status.getSlug() != null) {
-            elementAction().find(slugField).waitUntilVisible().clearAndSendKeys(status.getSlug());
+            elementAction().find(slugField).clearAndSendKeys(status.getSlug());
         }
     }
 
     public StatusesListPage createStatusAndReturnToList(Status status) {
         fillStatusForm(status);
-        elementAction().find(saveButton).waitUntilClickable().click();
-        elementAction().find(successCreatePopup).waitUntilVisible();
-        elementAction().find(successCreatePopup).waitUntilInvisible();
+        elementAction().find(saveButton).click();
+        waiter().waitForVisible(successCreatePopup);
+        waiter().waitForInvisible(successCreatePopup);
         StatusesListPage statusesListPage = new SideBar(getDriver()).getStatusesListPage();
         waiter().waitForCondition(driver -> statusesListPage.isStatusExists(status.getName()));
         return statusesListPage;
@@ -46,14 +46,14 @@ public class StatusPage extends BasePage {
         if (isEditFormOpen()) {
             return this;
         }
-        elementAction().find(editButton).waitUntilClickable().click();
-        elementAction().find(nameField).waitUntilVisible();
+        elementAction().find(editButton).click();
+        waiter().waitForVisible(nameField);
         return this;
     }
 
     private boolean isEditFormOpen() {
         try {
-            WebElement field = elementAction().find(nameField).waitUntilVisible().getElement();
+            WebElement field = waiter().waitForVisible(nameField);
             return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
         } catch (TimeoutException e) {
             return false;
@@ -62,34 +62,34 @@ public class StatusPage extends BasePage {
 
     public boolean updateStatus(Status status) {
         fillStatusForm(status);
-        elementAction().find(saveButton).waitUntilClickable().click();
-        elementAction().find(successUpdatedPopup).waitUntilVisible();
-        elementAction().find(successUpdatedPopup).waitUntilInvisible();
+        elementAction().find(saveButton).click();
+        waiter().waitForVisible(successUpdatedPopup);
+        waiter().waitForInvisible(successUpdatedPopup);
         return true;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(saveButton).click();
     }
 
     public String getNameValue() {
-        return elementAction().find(nameField).waitUntilVisible().getAttribute("value");
+        return elementAction().find(nameField).getAttribute("value");
     }
 
     public String getSlugValue() {
-        return elementAction().find(slugField).waitUntilVisible().getAttribute("value");
+        return elementAction().find(slugField).getAttribute("value");
     }
 
     public boolean isNameFieldVisible() {
-        return elementAction().find(nameField).waitUntilVisible().isDisplayed();
+        return elementAction().find(nameField).isDisplayed();
     }
 
     public boolean isSlugFieldVisible() {
-        return elementAction().find(slugField).waitUntilVisible().isDisplayed();
+        return elementAction().find(slugField).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(saveButton).isDisplayed();
     }
 
     public boolean hasValidationError() {

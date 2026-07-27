@@ -49,25 +49,27 @@ public class TaskByIdPage extends BasePage {
 
     private void fillTitleIfPresent(Task task) {
         if (task.getTitle() != null) {
-            elementAction().find(titleField).waitUntilVisible().clearAndSendKeys(task.getTitle());
+            elementAction().find(titleField).clearAndSendKeys(task.getTitle());
         }
     }
 
     private void fillContentIfPresent(Task task) {
         if (task.getContent() != null) {
-            elementAction().find(contentField).waitUntilVisible().clearAndSendKeys(task.getContent());
+            elementAction().find(contentField).clearAndSendKeys(task.getContent());
         }
     }
 
     private void fillAssigneeIfPresent(Task task) {
         if (task.getAssigneeEmail() != null) {
             elementAction().selectComboboxOption(assigneeCombobox, task.getAssigneeEmail());
+            waitForSnackbarToDisappear();
         }
     }
 
     private void fillStatusIfPresent(Task task) {
         if (task.getStatusName() != null) {
             elementAction().selectComboboxOption(statusCombobox, task.getStatusName());
+            waitForSnackbarToDisappear();
         }
     }
 
@@ -79,9 +81,9 @@ public class TaskByIdPage extends BasePage {
 
     public TasksListPage createTaskAndReturnToBoard(Task task) {
         fillTaskForm(task);
-        elementAction().find(saveButton).waitUntilClickable().click();
-        elementAction().find(successCreatePopup).waitUntilVisible();
-        elementAction().find(successCreatePopup).waitUntilInvisible();
+        elementAction().find(saveButton).click();
+        waiter().waitForVisible(successCreatePopup);
+        waiter().waitForInvisible(successCreatePopup);
         TasksListPage tasksListPage = new SideBar(getDriver()).getTaskListPage();
         waiter().waitForCondition(driver -> tasksListPage.isTaskExists(task.getTitle()));
         return tasksListPage;
@@ -89,10 +91,10 @@ public class TaskByIdPage extends BasePage {
 
     public void updateTask(Task task) {
         fillTaskForm(task);
-        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(saveButton).click();
         try {
-            elementAction().find(successUpdatedPopup).waitUntilVisible();
-            elementAction().find(successUpdatedPopup).waitUntilInvisible();
+            waiter().waitForVisible(successUpdatedPopup);
+            waiter().waitForInvisible(successUpdatedPopup);
         } catch (TimeoutException e) {
             LOGGER.warn("Timed out waiting for task update popup", e);
             waiter().waitForPageLoaded();
@@ -109,58 +111,58 @@ public class TaskByIdPage extends BasePage {
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(saveButton).click();
     }
 
     public void deleteTask() {
-        waiter().waitForSnackbarToDisappear();
-        elementAction().find(deleteButton).waitUntilClickable().click();
+        waitForSnackbarToDisappear();
+        elementAction().find(deleteButton).click();
         confirmDeleteIfRequired();
-        elementAction().find(successDeletePopup).waitUntilVisible();
+        waiter().waitForVisible(successDeletePopup);
     }
 
     private void confirmDeleteIfRequired() {
         if (getDriver().findElements(deleteConfirmDialog).isEmpty()) {
             return;
         }
-        elementAction().find(deleteConfirmDialog).waitUntilVisible();
-        elementAction().find(confirmDeleteButton).waitUntilClickable().click();
+        waiter().waitForVisible(deleteConfirmDialog);
+        elementAction().find(confirmDeleteButton).click();
     }
 
     public String getTitleValue() {
-        return elementAction().find(titleField).waitUntilVisible().getAttribute("value");
+        return elementAction().find(titleField).getAttribute("value");
     }
 
     public String getContentValue() {
-        return elementAction().find(contentField).waitUntilVisible().getAttribute("value");
+        return elementAction().find(contentField).getAttribute("value");
     }
 
     public String getAssigneeValue() {
-        return elementAction().find(assigneeCombobox).waitUntilVisible().getText().trim();
+        return elementAction().find(assigneeCombobox).getText().trim();
     }
 
     public String getStatusValue() {
-        return elementAction().find(statusCombobox).waitUntilVisible().getText().trim();
+        return elementAction().find(statusCombobox).getText().trim();
     }
 
     public boolean isTitleFieldVisible() {
-        return elementAction().find(titleField).waitUntilVisible().isDisplayed();
+        return elementAction().find(titleField).isDisplayed();
     }
 
     public boolean isContentFieldVisible() {
-        return elementAction().find(contentField).waitUntilVisible().isDisplayed();
+        return elementAction().find(contentField).isDisplayed();
     }
 
     public boolean isAssigneeFieldVisible() {
-        return elementAction().find(assigneeCombobox).waitUntilVisible().isDisplayed();
+        return elementAction().find(assigneeCombobox).isDisplayed();
     }
 
     public boolean isStatusFieldVisible() {
-        return elementAction().find(statusCombobox).waitUntilVisible().isDisplayed();
+        return elementAction().find(statusCombobox).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(saveButton).isDisplayed();
     }
 
     public boolean hasValidationError() {
@@ -184,7 +186,7 @@ public class TaskByIdPage extends BasePage {
     }
 
     public List<String> getLabels() {
-        WebElement labelsField = elementAction().find(labelCombobox).waitUntilVisible().getElement()
+        WebElement labelsField = waiter().waitForVisible(labelCombobox)
                 .findElement(By.xpath("./ancestor::div[contains(@class,'MuiFormControl-root')]"));
         return labelsField.findElements(By.xpath(".//*[contains(@class,'MuiChip-label')]")).stream()
                 .map(element -> element.getText().trim())
@@ -194,12 +196,12 @@ public class TaskByIdPage extends BasePage {
 
     private void selectLabels(List<String> labels) {
         By listbox = By.xpath("//*[@role='listbox']");
-        elementAction().find(labelCombobox).waitUntilClickable().click();
-        elementAction().find(listbox).waitUntilVisible();
+        elementAction().find(labelCombobox).click();
+        waiter().waitForVisible(listbox);
         for (String label : labels) {
             By option = By.xpath("//*[@role='listbox']//*[@role='option'][contains(normalize-space(.),"
                     + ElementAction.xpathLiteral(label.trim()) + ")]");
-            elementAction().find(option).waitUntilClickable().click();
+            elementAction().find(option).click();
         }
         closeOpenListbox(listbox);
     }
@@ -207,14 +209,14 @@ public class TaskByIdPage extends BasePage {
     private void closeOpenListbox(By listbox) {
         new Actions(getDriver()).sendKeys(Keys.ESCAPE).perform();
         try {
-            elementAction().find(listbox).waitUntilInvisible();
+            waiter().waitForInvisible(listbox);
         } catch (TimeoutException e) {
             List<WebElement> backdrops = getDriver().findElements(
                     By.xpath("//*[contains(@class,'MuiBackdrop-root')]"));
             if (!backdrops.isEmpty()) {
                 backdrops.getFirst().click();
             }
-            elementAction().find(listbox).waitUntilInvisible();
+            waiter().waitForInvisible(listbox);
         }
     }
 }

@@ -8,18 +8,14 @@ import hexlet.code.pages.tasks.Task;
 import hexlet.code.pages.tasks.TaskByIdForm;
 import hexlet.code.pages.tasks.TaskByIdPage;
 import hexlet.code.pages.tasks.TasksListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskByIdPageTest extends BaseTest {
-    private final List<String> titlesToCleanup = new ArrayList<>();
     private TasksListPage tasksListPage;
 
     @BeforeEach
@@ -28,28 +24,6 @@ class TaskByIdPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         tasksListPage = dashboardPage.getSideBar().getTaskListPage();
         assertNotNull(tasksListPage);
-    }
-
-    @AfterEach
-    void cleanupCreatedTasks() {
-        try {
-            TasksListPage listPage = new SideBar(driver).getTaskListPage();
-            for (String title : titlesToCleanup) {
-                if (listPage.isTaskExists(title)) {
-                    listPage.deleteTaskByTitle(title);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            titlesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String title) {
-        if (title != null && !title.isBlank()) {
-            titlesToCleanup.add(title);
-        }
     }
 
     private TasksListPage createTaskOnBoard(Task task) {
@@ -75,7 +49,7 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Создание новой задачи")
     void checkCreateNewTask() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
 
@@ -89,7 +63,7 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Форма редактирования заполнена данными задачи")
     void checkEditFormPrefilled() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
 
@@ -107,7 +81,7 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Редактирование данных задачи")
     void checkUpdateTask() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
 
@@ -129,7 +103,7 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Отображение деталей задачи")
     void checkShowTaskDetails() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
 
@@ -146,7 +120,7 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Перемещение задачи между колонками через редактирование")
     void checkMoveTaskBetweenColumnsByEdit() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
         assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), "Draft"));
@@ -212,13 +186,13 @@ class TaskByIdPageTest extends BaseTest {
     @DisplayName("Удаление задачи")
     void checkDeleteTask() {
         Task testTask = RandomTestData.getTask();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         createTaskOnBoard(testTask);
         assertTrue(tasksListPage.isTaskExists(testTask.getTitle()));
 
         tasksListPage.deleteTaskByTitle(testTask.getTitle());
-        titlesToCleanup.remove(testTask.getTitle());
+        cleanup().untrack(testTask.getTitle());
 
         tasksListPage = new SideBar(driver).getTaskListPage();
         assertTrue(tasksListPage.isTaskNotExists(testTask.getTitle()));

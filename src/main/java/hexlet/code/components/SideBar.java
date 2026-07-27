@@ -50,6 +50,6 @@ public class SideBar {
     }
 
     private void clickLink(By locator) {
-        elementAction.find(locator).waitUntilClickable().click();
+        elementAction.find(locator).click();
     }
 }

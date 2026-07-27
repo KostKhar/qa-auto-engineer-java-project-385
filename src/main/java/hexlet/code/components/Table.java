@@ -5,14 +5,9 @@ import hexlet.code.actions.Waiter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-
-import static hexlet.code.configure.ConfigurationManager.config;
 
 public final class Table<T> {
     public static final By CREATE_BUTTON = By.xpath("//*[@aria-label='Create']");
@@ -25,6 +20,7 @@ public final class Table<T> {
     public static final By LIST_ROOT = By.xpath(
             "//*[@aria-label='Create']/ancestor::div[contains(@class, 'RaList')][1]"
     );
+    private static final By SNACKBAR = By.xpath("//*[contains(@class,'MuiSnackbar-root')]");
 
     private static final By TABLE_BODY = By.xpath(".//tbody");
     private static final By TABLE_HEADER = By.xpath(".//thead");
@@ -35,7 +31,6 @@ public final class Table<T> {
     private final Waiter waiter;
     private final WebElement tableContainer;
     private final RowMapper<T> rowMapper;
-    private final WebDriverWait wait;
 
     private Table(WebDriver driver, WebElement tableContainer, RowMapper<T> rowMapper) {
         this.driver = driver;
@@ -43,7 +38,6 @@ public final class Table<T> {
         this.waiter = new Waiter(driver);
         this.tableContainer = tableContainer;
         this.rowMapper = rowMapper;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(config().timeout()));
     }
 
     public static <T> Table<T> create(WebDriver driver, RowMapper<T> rowMapper) {
@@ -58,18 +52,17 @@ public final class Table<T> {
         Waiter waiter = new Waiter(driver);
         List<WebElement> containers = driver.findElements(TABLE_CONTAINER);
         if (!containers.isEmpty()) {
-            return waiter.getWait().until(ExpectedConditions.visibilityOfElementLocated(TABLE_CONTAINER));
+            return waiter.waitForVisible(TABLE_CONTAINER);
         }
-        return waiter.getWait().until(ExpectedConditions.visibilityOfElementLocated(LIST_ROOT));
+        return waiter.waitForVisible(LIST_ROOT);
     }
 
     public static WebElement waitForListTableContainer(WebDriver driver) {
-        Waiter waiter = new Waiter(driver);
-        return waiter.getWait().until(ExpectedConditions.visibilityOfElementLocated(TABLE_CONTAINER));
+        return new Waiter(driver).waitForVisible(TABLE_CONTAINER);
     }
 
     public void waitForReady() {
-        elementAction.find(CREATE_BUTTON).waitUntilVisible();
+        waiter.waitForVisible(CREATE_BUTTON);
     }
 
     public boolean hasColumnHeaders(String... expectedHeaders) {
@@ -80,23 +73,23 @@ public final class Table<T> {
     }
 
     public boolean isCreateButtonVisible() {
-        return elementAction.find(CREATE_BUTTON).waitUntilVisible().isDisplayed();
+        return elementAction.find(CREATE_BUTTON).isDisplayed();
     }
 
     public boolean isTableLoaded() {
-        elementAction.find(TABLE_CONTAINER).waitUntilVisible();
+        waiter.waitForVisible(TABLE_CONTAINER);
         return !getRows().isEmpty();
     }
 
     public boolean isTableContainerVisible() {
-        elementAction.find(TABLE_CONTAINER).waitUntilVisible();
+        waiter.waitForVisible(TABLE_CONTAINER);
         return true;
     }
 
     public boolean isVisible() {
-        elementAction.find(CREATE_BUTTON).waitUntilVisible();
+        waiter.waitForVisible(CREATE_BUTTON);
         return !driver.findElements(TABLE_CONTAINER).isEmpty()
-                || elementAction.find(LIST_ROOT).waitUntilVisible().isDisplayed();
+                || elementAction.find(LIST_ROOT).isDisplayed();
     }
 
     public int getRowCount() {
@@ -104,17 +97,17 @@ public final class Table<T> {
     }
 
     public void selectAllRows() {
-        elementAction.find(SELECT_ALL_CHECKBOX).waitUntilClickable().click();
+        elementAction.find(SELECT_ALL_CHECKBOX).click();
     }
 
     public void deleteSelectedRows() {
-        elementAction.find(DELETE_BUTTON).waitUntilClickable().click();
-        elementAction.find(SUCCESS_DELETE_POPUP).waitUntilVisible();
+        elementAction.find(DELETE_BUTTON).click();
+        waiter.waitForVisible(SUCCESS_DELETE_POPUP);
     }
 
     public void clickCreateButton() {
-        waiter.waitForSnackbarToDisappear();
-        elementAction.find(CREATE_BUTTON).waitUntilClickable().click();
+        waiter.waitForInvisibleIfPresent(SNACKBAR);
+        elementAction.find(CREATE_BUTTON).click();
     }
 
     public List<WebElement> getRows() {
@@ -123,7 +116,7 @@ public final class Table<T> {
             return List.of();
         }
         WebElement tbody = tbodies.getFirst();
-        wait.until(ExpectedConditions.visibilityOf(tbody));
+        waiter.waitForVisible(tbody);
         return tableContainer.findElements(By.xpath(".//tbody//tr"));
     }
 
@@ -150,7 +143,7 @@ public final class Table<T> {
 
     public List<String> getHeaders() {
         WebElement headerRow = tableContainer.findElement(TABLE_HEADER);
-        wait.until(ExpectedConditions.visibilityOf(headerRow));
+        waiter.waitForVisible(headerRow);
         List<WebElement> headers = headerRow.findElements(By.xpath(".//th"));
         return headers.stream()
                 .map(WebElement::getText)

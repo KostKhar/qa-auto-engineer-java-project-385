@@ -26,7 +26,7 @@ public class DashboardPage extends BasePage {
     }
 
     public String getTitleOfContentRootByLocator() {
-        return getDriver().findElement(titleOfContentRootLocator).getText();
+        return elementAction().find(titleOfContentRootLocator).getText();
     }
 
     public String getTitleOfContentRoot() {

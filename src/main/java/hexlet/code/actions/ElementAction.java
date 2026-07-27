@@ -1,6 +1,5 @@
 package hexlet.code.actions;
 
-import io.qameta.allure.Allure;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
@@ -8,7 +7,6 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class ElementAction {
     private final WebDriver driver;
@@ -25,42 +23,29 @@ public class ElementAction {
         this.waiter = waiter;
     }
 
+    public ElementAction(WebDriver driver, WebElement element) {
+        this(driver, new Waiter(driver), element);
+    }
+
+    public ElementAction(WebDriver driver, Waiter waiter, WebElement element) {
+        this(driver, waiter);
+        this.element = element;
+    }
+
     public ElementAction find(By locator) {
-        ElementAction action = new ElementAction(driver, waiter);
-        action.locator = locator;
-        return action;
-    }
-
-    public ElementAction withElement(WebElement element) {
-        ElementAction action = new ElementAction(driver, waiter);
-        action.element = element;
-        return action;
-    }
-
-    public ElementAction waitUntilVisible() {
-        this.element = Allure.step("Ожидание видимости элемента",
-                () -> waiter.waitForVisible(locator));
+        this.locator = locator;
+        waiter.waitForVisible(locator);
+        this.element = driver.findElement(locator);
         return this;
-    }
-
-    public ElementAction waitUntilClickable() {
-        if (locator != null) {
-            this.element = Allure.step("Ожидание кликабельности элемента",
-                    () -> waiter.waitForClickable(locator));
-        } else {
-            scrollIntoView();
-            this.element = waiter.getWait().until(ExpectedConditions.elementToBeClickable(element));
-        }
-        return this;
-    }
-
-    public void waitUntilInvisible() {
-        Allure.step("Ожидание исчезновения элемента",
-                () -> waiter.waitForInvisible(locator));
     }
 
     public ElementAction click() {
-        waitUntilClickable();
+        if (locator != null) {
+            element = waiter.waitForClickable(locator);
+        } else {
+            scrollIntoView();
+            element = waiter.waitForClickable(element);
+        }
         try {
             element.click();
         } catch (ElementClickInterceptedException e) {
@@ -118,7 +103,7 @@ public class ElementAction {
     }
 
     public void scrollIntoView(WebElement target) {
-        withElement(target).scrollIntoView();
+        new ElementAction(driver, waiter, target).scrollIntoView();
     }
 
     public void dragAndDrop(WebElement source, WebElement target) {
@@ -149,12 +134,11 @@ public class ElementAction {
         if (field.getText().trim().equals(optionText)) {
             return;
         }
-        withElement(field).click();
+        new ElementAction(driver, waiter, field).click();
         By option = By.xpath(
                 "//*[@role='listbox']//*[@role='option'][normalize-space(.)=" + xpathLiteral(optionText) + "]"
         );
-        find(option).waitUntilClickable().click();
-        waiter.waitForSnackbarToDisappear();
+        find(option).click();
     }
 
     public boolean hasFieldValidationError(By field, By validationErrorLocator) {
@@ -199,14 +183,6 @@ public class ElementAction {
             return "\"" + value + "\"";
         }
         return "concat('" + value.replace("'", "',\"'\",'") + "')";
-    }
-
-    public WebDriver getDriver() {
-        return driver;
-    }
-
-    public WebElement getElement() {
-        return element;
     }
 
     private void ensureElement() {

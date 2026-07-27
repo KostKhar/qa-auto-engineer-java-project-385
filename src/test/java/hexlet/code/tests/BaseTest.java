@@ -1,16 +1,17 @@
 package hexlet.code.tests;
 
-import hexlet.code.configure.Configuration;
 import hexlet.code.driver.WebDriverFactory;
-import org.junit.jupiter.api.AfterEach;
+import hexlet.code.tests.cleanup.CleanupExtension;
+import hexlet.code.tests.cleanup.WebDriverExtension;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.openqa.selenium.Dimension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 
-import static hexlet.code.configure.ConfigurationManager.config;
-
-abstract class BaseTest {
+// Order matters: JUnit runs afterEach callbacks in reverse declaration order (LIFO),
+// so WebDriverExtension must be declared first for its afterEach (driver.quit())
+// to run *after* CleanupExtension's afterEach (which still needs a live driver).
+@ExtendWith({WebDriverExtension.class, CleanupExtension.class})
+public abstract class BaseTest {
     protected WebDriver driver;
 
     @BeforeAll
@@ -18,22 +19,11 @@ abstract class BaseTest {
         WebDriverFactory.setupDriver();
     }
 
-    @BeforeEach
-    void startBrowser() {
-        String baseUrl = config().baseUrl();
-
-        if (baseUrl.startsWith("http://wrong")) {
-            throw new RuntimeException("Invalid base URL");
-        }
-
-        Configuration configuration = config();
-        driver = WebDriverFactory.create(configuration);
-        driver.manage().window().setSize(new Dimension(configuration.windowWidth(), configuration.windowHeight()));
-        driver.get(baseUrl);
+    public WebDriver getDriver() {
+        return driver;
     }
 
-    @AfterEach
-    void tearDown() {
-        driver.quit();
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
     }
 }

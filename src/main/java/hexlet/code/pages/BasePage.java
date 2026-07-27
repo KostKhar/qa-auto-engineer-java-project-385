@@ -2,9 +2,13 @@ package hexlet.code.pages;
 
 import hexlet.code.actions.ElementAction;
 import hexlet.code.actions.Waiter;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public abstract class BasePage {
+    private static final By SNACKBAR = By.xpath("//*[contains(@class,'MuiSnackbar-root')]");
+
     private final WebDriver driver;
     private final Waiter waiter;
     private final ElementAction elementAction;
@@ -26,6 +30,14 @@ public abstract class BasePage {
 
     protected ElementAction elementAction() {
         return elementAction;
+    }
+
+    protected ElementAction elementAction(WebElement element) {
+        return new ElementAction(driver, waiter, element);
+    }
+
+    protected void waitForSnackbarToDisappear() {
+        waiter.waitForInvisibleIfPresent(SNACKBAR);
     }
 
     protected void initComponents() {

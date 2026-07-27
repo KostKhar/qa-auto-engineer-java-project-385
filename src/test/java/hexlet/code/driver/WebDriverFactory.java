@@ -2,6 +2,7 @@ package hexlet.code.driver;
 
 import hexlet.code.configure.Configuration;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -9,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+import static hexlet.code.configure.ConfigurationManager.config;
 
 public final class WebDriverFactory {
     private static final Path SYSTEM_CHROMEDRIVER = Path.of("/usr/bin/chromedriver");
@@ -27,7 +30,8 @@ public final class WebDriverFactory {
         WebDriverManager.chromedriver().setup();
     }
 
-    public static WebDriver create(Configuration configuration) {
+    public static WebDriver create() {
+        Configuration configuration = config();
         ChromeOptions options = new ChromeOptions();
 
         Optional<String> chromiumBinary = resolveChromiumBinary();
@@ -46,7 +50,12 @@ public final class WebDriverFactory {
                 + configuration.windowWidth() + "," + configuration.windowHeight());
 
         chromiumBinary.ifPresent(options::setBinary);
-        return new ChromeDriver(options);
+
+        WebDriver driver = new ChromeDriver(options);
+        driver.manage().window().setSize(
+                new Dimension(configuration.windowWidth(), configuration.windowHeight())
+        );
+        return driver;
     }
 
     private static Optional<String> resolveChromiumBinary() {

@@ -1,14 +1,16 @@
 package hexlet.code.actions;
 
 import io.qameta.allure.Allure;
-import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NotFoundException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -16,13 +18,12 @@ import java.util.function.Function;
 
 import static hexlet.code.configure.ConfigurationManager.config;
 
-@Getter
 public final class Waiter {
     public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(config().timeout());
-    private static final By SNACKBAR = By.xpath("//*[contains(@class,'MuiSnackbar-root')]");
+    private static final Duration POLLING_INTERVAL = Duration.ofMillis(200);
 
     private final WebDriver driver;
-    private final WebDriverWait wait;
+    private final Duration timeout;
 
     public Waiter(WebDriver driver) {
         this(driver, DEFAULT_TIMEOUT);
@@ -30,46 +31,66 @@ public final class Waiter {
 
     public Waiter(WebDriver driver, Duration timeout) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, timeout);
+        this.timeout = timeout;
     }
 
     public void waitForPageLoaded() {
         Allure.step("Ожидание загрузки страницы",
-                () -> wait.until(webDriver -> Objects.equals(((JavascriptExecutor) webDriver)
+                () -> createWait().until(webDriver -> Objects.equals(((JavascriptExecutor) webDriver)
                         .executeScript("return document.readyState"), "complete")));
     }
 
     public WebElement waitForVisible(By locator) {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        return createWait().until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public WebElement waitForVisible(WebElement element) {
+        return createWait().until(ExpectedConditions.visibilityOf(element));
     }
 
     public WebElement waitForClickable(By locator) {
-        return wait.until(ExpectedConditions.elementToBeClickable(locator));
+        return createWait().until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    public WebElement waitForClickable(WebElement element) {
+        return createWait().until(ExpectedConditions.elementToBeClickable(element));
     }
 
     public void waitForInvisible(By locator) {
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        createWait().until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
-    public void waitForSnackbarToDisappear() {
-        if (!driver.findElements(SNACKBAR).isEmpty()) {
-            waitForInvisible(SNACKBAR);
+    public void waitForInvisibleIfPresent(By locator) {
+        if (!driver.findElements(locator).isEmpty()) {
+            waitForInvisible(locator);
         }
     }
 
     public boolean waitForCondition(Function<WebDriver, Boolean> condition) {
-        return wait.until(condition);
+        return createWait().until(condition);
     }
 
     public void waitForCondition(Function<WebDriver, Boolean> condition, Duration timeout) {
-        new WebDriverWait(driver, timeout).until(condition);
+        createWait(timeout).until(condition);
     }
 
     public boolean waitForConditionOptional(Function<WebDriver, Boolean> condition, Duration timeout) {
         try {
-            return new WebDriverWait(driver, timeout).until(condition);
+            return createWait(timeout).until(condition);
         } catch (TimeoutException e) {
             return false;
         }
+    }
+
+    private Wait<WebDriver> createWait() {
+        return createWait(timeout);
+    }
+
+    private Wait<WebDriver> createWait(Duration timeout) {
+        return new FluentWait<>(driver)
+                .withTimeout(timeout)
+                .pollingEvery(POLLING_INTERVAL)
+                .ignoring(NotFoundException.class)
+                .ignoring(StaleElementReferenceException.class);
     }
 }

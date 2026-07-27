@@ -1,55 +1,42 @@
 package hexlet.code.tests;
 
-import hexlet.code.components.SideBar;
 import hexlet.code.data.RandomTestData;
 import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.tasks.Task;
 import hexlet.code.pages.tasks.TaskByIdPage;
 import hexlet.code.pages.tasks.TasksListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TasksListPageTest extends BaseTest {
-    private final List<String> titlesToCleanup = new ArrayList<>();
     private TasksListPage tasksListPage;
 
-    @MethodSource
-    static Stream<Arguments> getDataForMoveTask() {
-        return Stream.of(
-                Arguments.of("Draft", "To Review"),
-                Arguments.of("Draft", "To Be Fixed"),
-                Arguments.of("Draft", "To Publish"),
-                Arguments.of("Draft", "Published"),
-                Arguments.of("To Review", "Draft"),
-                Arguments.of("To Review", "To Be Fixed"),
-                Arguments.of("To Review", "To Publish"),
-                Arguments.of("To Review", "Published"),
-                Arguments.of("To Be Fixed", "Draft"),
-                Arguments.of("To Be Fixed", "To Review"),
-                Arguments.of("To Be Fixed", "To Publish"),
-                Arguments.of("To Be Fixed", "Published"),
-                Arguments.of("To Publish", "Draft"),
-                Arguments.of("To Publish", "To Review"),
-                Arguments.of("To Publish", "To Be Fixed"),
-                Arguments.of("To Publish", "Published"),
-                Arguments.of("Published", "Draft"),
-                Arguments.of("Published", "To Review"),
-                Arguments.of("Published", "To Be Fixed"),
-                Arguments.of("Published", "To Publish")
+    static class MoveTaskArgumentsProvider implements ArgumentsProvider {
+        private static final List<String> STATUSES = List.of(
+                "Draft", "To Review", "To Be Fixed", "To Publish", "Published"
         );
+
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            return STATUSES.stream()
+                    .flatMap(oldStatus -> STATUSES.stream()
+                            .filter(newStatus -> !newStatus.equals(oldStatus))
+                            .map(newStatus -> Arguments.of(oldStatus, newStatus)));
+        }
     }
 
     @BeforeEach
@@ -58,28 +45,6 @@ class TasksListPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         tasksListPage = dashboardPage.getSideBar().getTaskListPage();
         assertNotNull(tasksListPage, "Tasks list page is null");
-    }
-
-    @AfterEach
-    void cleanupCreatedTasks() {
-        try {
-            TasksListPage listPage = new SideBar(driver).getTaskListPage();
-            for (String title : titlesToCleanup) {
-                if (listPage.isTaskExists(title)) {
-                    listPage.deleteTaskByTitle(title);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            titlesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String title) {
-        if (title != null && !title.isBlank()) {
-            titlesToCleanup.add(title);
-        }
     }
 
     @Test
@@ -111,7 +76,7 @@ class TasksListPageTest extends BaseTest {
         Task testTask = RandomTestData.getTask();
         testTask.setStatusName(status);
         String title = testTask.getTitle();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(testTask);
 
@@ -128,7 +93,7 @@ class TasksListPageTest extends BaseTest {
         Task testTask = RandomTestData.getTask();
         String email = testTask.getAssigneeEmail();
         String title = testTask.getTitle();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(testTask);
         tasksListPage.filterByAssignee(email);
@@ -145,7 +110,7 @@ class TasksListPageTest extends BaseTest {
         Task testTask = RandomTestData.getTask();
         testTask.setLabels(List.of(label));
         String title = testTask.getTitle();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(testTask);
         tasksListPage.filterByLabel(label);
@@ -160,8 +125,8 @@ class TasksListPageTest extends BaseTest {
     void checkFilterByStatusHidesOtherTasks() {
         Task matchingTask = RandomTestData.getTask("Published");
         Task otherTask = RandomTestData.getTask("Draft");
-        trackForCleanup(matchingTask.getTitle());
-        trackForCleanup(otherTask.getTitle());
+        cleanup().trackTask(matchingTask.getTitle());
+        cleanup().trackTask(otherTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(matchingTask);
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(otherTask);
@@ -183,8 +148,8 @@ class TasksListPageTest extends BaseTest {
         matchingTask.setAssigneeEmail("alice@hotmail.com");
         Task otherTask = RandomTestData.getTask();
         otherTask.setAssigneeEmail("john@google.com");
-        trackForCleanup(matchingTask.getTitle());
-        trackForCleanup(otherTask.getTitle());
+        cleanup().trackTask(matchingTask.getTitle());
+        cleanup().trackTask(otherTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(matchingTask);
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(otherTask);
@@ -206,8 +171,8 @@ class TasksListPageTest extends BaseTest {
         matchingTask.setLabels(List.of("critical"));
         Task otherTask = RandomTestData.getTask();
         otherTask.setLabels(List.of("bug"));
-        trackForCleanup(matchingTask.getTitle());
-        trackForCleanup(otherTask.getTitle());
+        cleanup().trackTask(matchingTask.getTitle());
+        cleanup().trackTask(otherTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(matchingTask);
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(otherTask);
@@ -224,11 +189,11 @@ class TasksListPageTest extends BaseTest {
 
     @DisplayName("Перемещение задачи между колонками перетаскиванием")
     @ParameterizedTest
-    @MethodSource("getDataForMoveTask")
+    @ArgumentsSource(MoveTaskArgumentsProvider.class)
     void checkMoveTaskBetweenColumnsByDrag(String statusOld, String statusNew) {
         Task testTask = RandomTestData.getTask(statusOld);
         String title = testTask.getTitle();
-        trackForCleanup(testTask.getTitle());
+        cleanup().trackTask(testTask.getTitle());
 
         tasksListPage = tasksListPage.clickCreateTask().createTaskAndReturnToBoard(testTask);
         assertTrue(tasksListPage.isTaskInColumn(title, statusOld));

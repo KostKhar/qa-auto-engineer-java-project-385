@@ -7,18 +7,14 @@ import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.users.User;
 import hexlet.code.pages.users.UserPage;
 import hexlet.code.pages.users.UsersListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserPageTest extends BaseTest {
-    private final List<String> emailsToCleanup = new ArrayList<>();
     private UsersListPage usersListPage;
 
     @BeforeEach
@@ -27,28 +23,6 @@ class UserPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         usersListPage = dashboardPage.getSideBar().getUsersListPage();
         assertNotNull(usersListPage);
-    }
-
-    @AfterEach
-    void cleanupCreatedUsers() {
-        try {
-            UsersListPage listPage = new SideBar(driver).getUsersListPage();
-            for (String email : emailsToCleanup) {
-                if (listPage.isUserExists(email)) {
-                    listPage.deleteUserByEmail(email);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            emailsToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String email) {
-        if (email != null && !email.isBlank()) {
-            emailsToCleanup.add(email);
-        }
     }
 
     private UsersListPage createUserOnList(User user) {
@@ -71,7 +45,7 @@ class UserPageTest extends BaseTest {
     @DisplayName("Создание нового пользователя")
     void checkCreateNewUser() {
         User testUser = RandomTestData.getUser();
-        trackForCleanup(testUser.getEmail());
+        cleanup().trackUser(testUser.getEmail());
 
         createUserOnList(testUser);
         assertTrue(usersListPage.isUserExists(testUser.getEmail()));
@@ -81,7 +55,7 @@ class UserPageTest extends BaseTest {
     @DisplayName("Форма редактирования заполнена данными пользователя")
     void checkEditFormPrefilled() {
         User testUser = RandomTestData.getUser();
-        trackForCleanup(testUser.getEmail());
+        cleanup().trackUser(testUser.getEmail());
 
         createUserOnList(testUser);
 
@@ -96,12 +70,12 @@ class UserPageTest extends BaseTest {
     @DisplayName("Редактирование данных пользователя")
     void checkUpdateUser() {
         User testUser = RandomTestData.getUser();
-        trackForCleanup(testUser.getEmail());
+        cleanup().trackUser(testUser.getEmail());
 
         createUserOnList(testUser);
 
         User updatedUser = RandomTestData.getUser();
-        trackForCleanup(updatedUser.getEmail());
+        cleanup().trackUser(updatedUser.getEmail());
 
         usersListPage = usersListPage.updateUserByEmail(testUser.getEmail(), updatedUser);
 
@@ -131,7 +105,7 @@ class UserPageTest extends BaseTest {
     @DisplayName("Валидация некорректного email при обновлении пользователя")
     void checkInvalidEmailOnUpdate() {
         User testUser = RandomTestData.getUser();
-        trackForCleanup(testUser.getEmail());
+        cleanup().trackUser(testUser.getEmail());
 
         createUserOnList(testUser);
 

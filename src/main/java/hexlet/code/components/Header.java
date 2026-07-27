@@ -17,8 +17,8 @@ public class Header {
     }
 
     public LoginPage clickLogoutButton() {
-        elementAction.find(profileButton).waitUntilClickable().click();
-        elementAction.find(logoutButton).waitUntilClickable().click();
+        elementAction.find(profileButton).click();
+        elementAction.find(logoutButton).click();
         return new LoginPage(driver);
     }
 }

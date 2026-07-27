@@ -6,20 +6,16 @@ import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.labels.Label;
 import hexlet.code.pages.labels.LabelsListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LabelsListPageTest extends BaseTest {
-    private final List<String> namesToCleanup = new ArrayList<>();
     private LabelsListPage labelsListPage;
 
     @BeforeEach
@@ -28,28 +24,6 @@ class LabelsListPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         labelsListPage = dashboardPage.getSideBar().getLabelsListPage();
         assertNotNull(labelsListPage, "Labels list page is null");
-    }
-
-    @AfterEach
-    void cleanupCreatedLabels() {
-        try {
-            LabelsListPage listPage = new SideBar(driver).getLabelsListPage();
-            for (String name : namesToCleanup) {
-                if (listPage.isLabelExists(name)) {
-                    listPage.deleteLabelByName(name);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            namesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String name) {
-        if (name != null && !name.isBlank()) {
-            namesToCleanup.add(name);
-        }
     }
 
     @Test
@@ -90,7 +64,7 @@ class LabelsListPageTest extends BaseTest {
     @DisplayName("Предустановленные метки остаются в таблице после создания новой")
     void checkSeedLabelsRemainAfterCreatingNewLabel() {
         Label customLabel = RandomTestData.getLabel();
-        trackForCleanup(customLabel.getName());
+        cleanup().trackLabel(customLabel.getName());
 
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(customLabel);
 
@@ -129,8 +103,8 @@ class LabelsListPageTest extends BaseTest {
     void checkBulkDeleteLabels() {
         Label label1 = RandomTestData.getLabel();
         Label label2 = RandomTestData.getLabel();
-        trackForCleanup(label1.getName());
-        trackForCleanup(label2.getName());
+        cleanup().trackLabel(label1.getName());
+        cleanup().trackLabel(label2.getName());
 
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(label1);
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(label2);
@@ -142,7 +116,7 @@ class LabelsListPageTest extends BaseTest {
         labelsListPage = new SideBar(driver).getLabelsListPage();
         assertTrue(labelsListPage.isLabelNotExists(label1.getName()));
         assertTrue(labelsListPage.isLabelNotExists(label2.getName()));
-        namesToCleanup.clear();
+        cleanup().clear();
     }
 
     @Test
@@ -150,8 +124,8 @@ class LabelsListPageTest extends BaseTest {
     void checkSelectAllAndDeselectLabels() {
         Label label1 = RandomTestData.getLabel();
         Label label2 = RandomTestData.getLabel();
-        trackForCleanup(label1.getName());
-        trackForCleanup(label2.getName());
+        cleanup().trackLabel(label1.getName());
+        cleanup().trackLabel(label2.getName());
 
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(label1);
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(label2);

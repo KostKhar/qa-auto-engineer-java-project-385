@@ -23,14 +23,14 @@ public class LabelPage extends BasePage {
     }
 
     public void fillLabelForm(Label label) {
-        elementAction().find(nameField).waitUntilVisible().clearAndSendKeys(label.getName());
+        elementAction().find(nameField).clearAndSendKeys(label.getName());
     }
 
     public LabelsListPage createLabelAndReturnToList(Label label) {
         fillLabelForm(label);
-        elementAction().find(saveButton).waitUntilClickable().click();
-        elementAction().find(successCreatePopup).waitUntilVisible();
-        elementAction().find(successCreatePopup).waitUntilInvisible();
+        elementAction().find(saveButton).click();
+        waiter().waitForVisible(successCreatePopup);
+        waiter().waitForInvisible(successCreatePopup);
         LabelsListPage labelsListPage = new SideBar(getDriver()).getLabelsListPage();
         waiter().waitForCondition(driver -> labelsListPage.isLabelExists(label.getName()));
         return labelsListPage;
@@ -40,14 +40,14 @@ public class LabelPage extends BasePage {
         if (isEditFormOpen()) {
             return this;
         }
-        elementAction().find(editButton).waitUntilClickable().click();
-        elementAction().find(nameField).waitUntilVisible();
+        elementAction().find(editButton).click();
+        waiter().waitForVisible(nameField);
         return this;
     }
 
     private boolean isEditFormOpen() {
         try {
-            WebElement field = elementAction().find(nameField).waitUntilVisible().getElement();
+            WebElement field = waiter().waitForVisible(nameField);
             return field.isDisplayed() && field.isEnabled() && "input".equalsIgnoreCase(field.getTagName());
         } catch (TimeoutException e) {
             return false;
@@ -56,30 +56,30 @@ public class LabelPage extends BasePage {
 
     public void updateLabel(Label label) {
         fillLabelForm(label);
-        elementAction().find(saveButton).waitUntilClickable().click();
-        elementAction().find(successUpdatedPopup).waitUntilVisible();
-        elementAction().find(successUpdatedPopup).waitUntilInvisible();
+        elementAction().find(saveButton).click();
+        waiter().waitForVisible(successUpdatedPopup);
+        waiter().waitForInvisible(successUpdatedPopup);
     }
 
     public void submitFormWithoutWaitingForSuccess() {
-        elementAction().find(saveButton).waitUntilClickable().click();
+        elementAction().find(saveButton).click();
     }
 
     public void deleteLabel() {
-        elementAction().find(deleteButton).waitUntilClickable().click();
-        elementAction().find(successDeletePopup).waitUntilVisible();
+        elementAction().find(deleteButton).click();
+        waiter().waitForVisible(successDeletePopup);
     }
 
     public String getNameValue() {
-        return elementAction().find(nameField).waitUntilVisible().getAttribute("value");
+        return elementAction().find(nameField).getAttribute("value");
     }
 
     public boolean isNameFieldVisible() {
-        return elementAction().find(nameField).waitUntilVisible().isDisplayed();
+        return elementAction().find(nameField).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(saveButton).isDisplayed();
     }
 
     public boolean validationErrorIsDisplayed() {

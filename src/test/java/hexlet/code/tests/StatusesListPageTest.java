@@ -6,16 +6,15 @@ import hexlet.code.pages.DashboardPage;
 import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.statuses.Status;
 import hexlet.code.pages.statuses.StatusesListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StatusesListPageTest extends BaseTest {
@@ -27,7 +26,6 @@ class StatusesListPageTest extends BaseTest {
             new Status("Published", "published")
     );
 
-    private final List<String> namesToCleanup = new ArrayList<>();
     private StatusesListPage statusesListPage;
 
     @BeforeEach
@@ -36,28 +34,6 @@ class StatusesListPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         statusesListPage = dashboardPage.getSideBar().getStatusesListPage();
         assertNotNull(statusesListPage, "Statuses list page is null");
-    }
-
-    @AfterEach
-    void cleanupCreatedStatuses() {
-        try {
-            StatusesListPage listPage = new SideBar(driver).getStatusesListPage();
-            for (String name : namesToCleanup) {
-                if (listPage.isStatusExists(name)) {
-                    listPage.deleteStatusByName(name);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            namesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String name) {
-        if (name != null && !name.isBlank()) {
-            namesToCleanup.add(name);
-        }
     }
 
     @Test
@@ -127,8 +103,8 @@ class StatusesListPageTest extends BaseTest {
     void checkBulkDeleteStatuses() {
         Status status1 = RandomTestData.getStatus();
         Status status2 = RandomTestData.getStatus();
-        trackForCleanup(status1.getName());
-        trackForCleanup(status2.getName());
+        cleanup().trackStatus(status1.getName());
+        cleanup().trackStatus(status2.getName());
 
         statusesListPage = statusesListPage.clickCreateStatus().createStatusAndReturnToList(status1);
         statusesListPage = statusesListPage.clickCreateStatus().createStatusAndReturnToList(status2);
@@ -140,7 +116,7 @@ class StatusesListPageTest extends BaseTest {
         statusesListPage = new SideBar(driver).getStatusesListPage();
         assertTrue(statusesListPage.isStatusNotExists(status1.getName()));
         assertTrue(statusesListPage.isStatusNotExists(status2.getName()));
-        namesToCleanup.clear();
+        cleanup().clear();
     }
 
     @Test
@@ -148,8 +124,8 @@ class StatusesListPageTest extends BaseTest {
     void checkSelectAllAndDeselectStatuses() {
         Status status1 = RandomTestData.getStatus();
         Status status2 = RandomTestData.getStatus();
-        trackForCleanup(status1.getName());
-        trackForCleanup(status2.getName());
+        cleanup().trackStatus(status1.getName());
+        cleanup().trackStatus(status2.getName());
 
         statusesListPage = statusesListPage.clickCreateStatus().createStatusAndReturnToList(status1);
         statusesListPage = statusesListPage.clickCreateStatus().createStatusAndReturnToList(status2);

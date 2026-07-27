@@ -41,7 +41,7 @@ public class UsersListPage extends BasePage {
     }
 
     public boolean isExportButtonVisible() {
-        return elementAction().find(exportButton).waitUntilVisible().isDisplayed();
+        return elementAction().find(exportButton).isDisplayed();
     }
 
     public int getUsersCount() {
@@ -188,7 +188,7 @@ public class UsersListPage extends BasePage {
 
     private void searchUser(String query) {
         try {
-            WebElement input = elementAction().find(searchInput).waitUntilVisible().getElement();
+            WebElement input = waiter().waitForVisible(searchInput);
             input.clear();
             input.sendKeys(query);
             waiter().waitForPageLoaded();

@@ -7,18 +7,14 @@ import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.statuses.Status;
 import hexlet.code.pages.statuses.StatusPage;
 import hexlet.code.pages.statuses.StatusesListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StatusPageTest extends BaseTest {
-    private final List<String> namesToCleanup = new ArrayList<>();
     private StatusesListPage statusesListPage;
 
     @BeforeEach
@@ -27,28 +23,6 @@ class StatusPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         statusesListPage = dashboardPage.getSideBar().getStatusesListPage();
         assertNotNull(statusesListPage);
-    }
-
-    @AfterEach
-    void cleanupCreatedStatuses() {
-        try {
-            StatusesListPage listPage = new SideBar(driver).getStatusesListPage();
-            for (String name : namesToCleanup) {
-                if (listPage.isStatusExists(name)) {
-                    listPage.deleteStatusByName(name);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
-            namesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String name) {
-        if (name != null && !name.isBlank()) {
-            namesToCleanup.add(name);
-        }
     }
 
     private StatusesListPage createStatusOnList(Status status) {
@@ -70,7 +44,7 @@ class StatusPageTest extends BaseTest {
     @DisplayName("Создание нового статуса")
     void checkCreateNewStatus() {
         Status testStatus = RandomTestData.getStatus();
-        trackForCleanup(testStatus.getName());
+        cleanup().trackStatus(testStatus.getName());
 
         createStatusOnList(testStatus);
 
@@ -83,7 +57,7 @@ class StatusPageTest extends BaseTest {
     @DisplayName("Форма редактирования заполнена данными статуса")
     void checkEditFormPrefilled() {
         Status testStatus = RandomTestData.getStatus();
-        trackForCleanup(testStatus.getName());
+        cleanup().trackStatus(testStatus.getName());
 
         createStatusOnList(testStatus);
 
@@ -97,12 +71,12 @@ class StatusPageTest extends BaseTest {
     @DisplayName("Редактирование данных статуса")
     void checkUpdateStatus() {
         Status testStatus = RandomTestData.getStatus();
-        trackForCleanup(testStatus.getName());
+        cleanup().trackStatus(testStatus.getName());
 
         createStatusOnList(testStatus);
 
         Status updatedStatus = RandomTestData.getStatus();
-        trackForCleanup(updatedStatus.getName());
+        cleanup().trackStatus(updatedStatus.getName());
 
         statusesListPage = statusesListPage.updateStatusByName(testStatus.getName(), updatedStatus);
 
@@ -131,7 +105,7 @@ class StatusPageTest extends BaseTest {
     @DisplayName("Валидация пустого имени при обновлении статуса")
     void checkEmptyNameOnUpdate() {
         Status testStatus = RandomTestData.getStatus();
-        trackForCleanup(testStatus.getName());
+        cleanup().trackStatus(testStatus.getName());
 
         createStatusOnList(testStatus);
 

@@ -20,19 +20,19 @@ public class TaskByIdForm extends BasePage {
     }
 
     public String getTitleText() {
-        return elementAction().find(title).waitUntilVisible().getText().trim();
+        return elementAction().find(title).getText().trim();
     }
 
     public String getDescriptionText() {
-        return elementAction().find(description).waitUntilVisible().getText().trim();
+        return elementAction().find(description).getText().trim();
     }
 
     public String getAssigneeText() {
-        return elementAction().find(assigneeField).waitUntilVisible().getText().trim();
+        return elementAction().find(assigneeField).getText().trim();
     }
 
     public boolean isTitleVisible() {
-        return elementAction().find(title).waitUntilVisible().isDisplayed();
+        return elementAction().find(title).isDisplayed();
     }
 
 }

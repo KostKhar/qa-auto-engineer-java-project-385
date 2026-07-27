@@ -7,18 +7,14 @@ import hexlet.code.pages.LoginPage;
 import hexlet.code.pages.labels.Label;
 import hexlet.code.pages.labels.LabelPage;
 import hexlet.code.pages.labels.LabelsListPage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static hexlet.code.tests.cleanup.CleanupExtension.cleanup;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LabelPageTest extends BaseTest {
-    private final List<String> namesToCleanup = new ArrayList<>();
     private LabelsListPage labelsListPage;
 
     @BeforeEach
@@ -27,28 +23,6 @@ class LabelPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         labelsListPage = dashboardPage.getSideBar().getLabelsListPage();
         assertNotNull(labelsListPage);
-    }
-
-    @AfterEach
-    void cleanupCreatedLabels() {
-        try {
-            LabelsListPage listPage = new SideBar(driver).getLabelsListPage();
-            for (String name : namesToCleanup) {
-                if (listPage.isLabelExists(name)) {
-                    listPage.deleteLabelByName(name);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            namesToCleanup.clear();
-        }
-    }
-
-    private void trackForCleanup(String name) {
-        if (name != null && !name.isBlank()) {
-            namesToCleanup.add(name);
-        }
     }
 
     private LabelsListPage createLabelOnList(Label label) {
@@ -69,7 +43,7 @@ class LabelPageTest extends BaseTest {
     @DisplayName("Создание новой метки")
     void checkCreateNewLabel() {
         Label testLabel = RandomTestData.getLabel();
-        trackForCleanup(testLabel.getName());
+        cleanup().trackLabel(testLabel.getName());
 
         createLabelOnList(testLabel);
 
@@ -81,7 +55,7 @@ class LabelPageTest extends BaseTest {
     @DisplayName("Форма редактирования заполнена данными метки")
     void checkEditFormPrefilled() {
         Label testLabel = RandomTestData.getLabel();
-        trackForCleanup(testLabel.getName());
+        cleanup().trackLabel(testLabel.getName());
 
         createLabelOnList(testLabel);
 
@@ -94,12 +68,12 @@ class LabelPageTest extends BaseTest {
     @DisplayName("Редактирование данных метки")
     void checkUpdateLabel() {
         Label testLabel = RandomTestData.getLabel();
-        trackForCleanup(testLabel.getName());
+        cleanup().trackLabel(testLabel.getName());
 
         createLabelOnList(testLabel);
 
         Label updatedLabel = RandomTestData.getLabel();
-        trackForCleanup(updatedLabel.getName());
+        cleanup().trackLabel(updatedLabel.getName());
 
         labelsListPage = labelsListPage.updateLabelByName(testLabel.getName(), updatedLabel);
 
@@ -113,7 +87,7 @@ class LabelPageTest extends BaseTest {
     void checkEmptyNameOnCreate() {
         LabelPage labelPage = labelsListPage.clickCreateLabel();
         Label invalidLabel = new Label("");
-        trackForCleanup(invalidLabel.getName());
+        cleanup().trackLabel(invalidLabel.getName());
 
         labelPage.fillLabelForm(invalidLabel);
         assertTrue(labelPage.isSaveButtonNotClickable());
@@ -123,7 +97,7 @@ class LabelPageTest extends BaseTest {
     @DisplayName("Валидация пустого имени при обновлении метки")
     void checkEmptyNameOnUpdate() {
         Label testLabel = RandomTestData.getLabel();
-        trackForCleanup(testLabel.getName());
+        cleanup().trackLabel(testLabel.getName());
 
         createLabelOnList(testLabel);
 
