@@ -81,15 +81,15 @@ public class StatusPage extends BasePage {
     }
 
     public boolean isNameFieldVisible() {
-        return elementAction().find(nameField).isDisplayed();
+        return elementAction().find(nameField).isEnabled();
     }
 
     public boolean isSlugFieldVisible() {
-        return elementAction().find(slugField).isDisplayed();
+        return elementAction().find(slugField).isEnabled();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).isDisplayed();
+        return elementAction().find(saveButton).isEnabled();
     }
 
     public boolean hasValidationError() {

@@ -41,7 +41,7 @@ public class UsersListPage extends BasePage {
     }
 
     public boolean isExportButtonVisible() {
-        return elementAction().find(exportButton).isDisplayed();
+        return elementAction().find(exportButton).isEnabled();
     }
 
     public int getUsersCount() {

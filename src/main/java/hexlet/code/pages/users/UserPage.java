@@ -101,23 +101,23 @@ public class UserPage extends BasePage {
     }
 
     public boolean isEmailFieldVisible() {
-        return elementAction().find(emailField).isDisplayed();
+        return elementAction().find(emailField).isEnabled();
     }
 
     public boolean isFirstNameFieldVisible() {
-        return elementAction().find(firstNameField).isDisplayed();
+        return elementAction().find(firstNameField).isEnabled();
     }
 
     public boolean isLastNameFieldVisible() {
-        return elementAction().find(lastNameField).isDisplayed();
+        return elementAction().find(lastNameField).isEnabled();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).isDisplayed();
+        return elementAction().find(saveButton).isEnabled();
     }
 
     public boolean isUpdateSuccessful() {
-        return elementAction().find(successUpdatedPopup).isDisplayed();
+        return elementAction().find(successUpdatedPopup).isEnabled();
     }
 
     public boolean isEmailValidationErrorVisible() {

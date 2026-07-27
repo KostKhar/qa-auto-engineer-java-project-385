@@ -39,6 +39,7 @@ class StatusesListPageTest extends BaseTest {
     @Test
     @DisplayName("Отображение страницы списка статусов")
     void checkStatusesListPage() {
+        assertTrue(statusesListPage.hasColumnHeaders("Id", "Name", "Slug", "Created at"));
         assertTrue(statusesListPage.isTableVisible());
         assertTrue(statusesListPage.isCreateButtonVisible());
     }
@@ -46,7 +47,7 @@ class StatusesListPageTest extends BaseTest {
     @Test
     @DisplayName("Наличие колонок в таблице статусов")
     void checkStatusesListColumns() {
-        assertTrue(statusesListPage.hasColumnHeaders("Name", "Slug"));
+        assertTrue(statusesListPage.hasColumnHeaders("Id", "Name", "Slug"));
     }
 
     @Test

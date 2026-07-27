@@ -5,6 +5,7 @@ import hexlet.code.pages.LoginPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static hexlet.code.pages.DashboardPage.TITLE_OF_CONTENT_ROOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LoginPageTest extends BaseTest {
@@ -15,7 +16,7 @@ class LoginPageTest extends BaseTest {
         LoginPage loginPage = new LoginPage(driver);
 
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
-        String expected = dashboardPage.getTitleOfContentRoot();
+        String expected = TITLE_OF_CONTENT_ROOT;
         String actual = dashboardPage.getTitleOfContentRootByLocator();
         assertEquals(expected, actual, "Title of content root is not equal to " + expected);
     }

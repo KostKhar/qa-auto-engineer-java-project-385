@@ -17,7 +17,6 @@ class DashboardPageTest extends BaseTest {
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         LoginPage loginPageAfterLogout = dashboardPage.getHeader().clickLogoutButton();
 
-        boolean isSignInButtonVisible = loginPageAfterLogout.isSignInButtonVisible();
-        assertTrue(isSignInButtonVisible);
+        assertTrue(loginPageAfterLogout.isLoginElementsIsVisible());
     }
 }

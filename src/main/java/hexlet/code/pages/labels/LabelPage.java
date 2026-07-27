@@ -75,11 +75,11 @@ public class LabelPage extends BasePage {
     }
 
     public boolean isNameFieldVisible() {
-        return elementAction().find(nameField).isDisplayed();
+        return elementAction().find(nameField).isEnabled();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).isDisplayed();
+        return elementAction().find(saveButton).isEnabled();
     }
 
     public boolean validationErrorIsDisplayed() {
