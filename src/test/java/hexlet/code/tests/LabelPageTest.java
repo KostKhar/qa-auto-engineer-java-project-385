@@ -25,9 +25,8 @@ class LabelPageTest extends BaseTest {
         assertNotNull(labelsListPage);
     }
 
-    private LabelsListPage createLabelOnList(Label label) {
+    private void createLabelOnList(Label label) {
         labelsListPage = labelsListPage.clickCreateLabel().createLabelAndReturnToList(label);
-        return labelsListPage;
     }
 
     @Test

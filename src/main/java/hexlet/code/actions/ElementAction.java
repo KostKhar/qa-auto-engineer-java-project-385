@@ -81,9 +81,9 @@ public class ElementAction {
         return element.getAttribute(name);
     }
 
-    public boolean isEnabled() {
+    public boolean isDisplayed() {
         ensureElement();
-        return element.isEnabled();
+        return element.isDisplayed();
     }
 
     public ElementAction scrollIntoView() {

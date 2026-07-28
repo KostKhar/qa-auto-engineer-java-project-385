@@ -73,7 +73,7 @@ public final class Table<T> {
     }
 
     public boolean isCreateButtonVisible() {
-        return elementAction.find(CREATE_BUTTON).isEnabled();
+        return elementAction.find(CREATE_BUTTON).isDisplayed();
     }
 
     public boolean isTableLoaded() {
@@ -89,7 +89,7 @@ public final class Table<T> {
     public boolean isVisible() {
         waiter.waitForVisible(CREATE_BUTTON);
         return !driver.findElements(TABLE_CONTAINER).isEmpty()
-                || elementAction.find(LIST_ROOT).isEnabled();
+                || elementAction.find(LIST_ROOT).isDisplayed();
     }
 
     public int getRowCount() {

@@ -38,9 +38,9 @@ public class LoginPage extends BasePage {
 
     public boolean isLoginElementsIsVisible() {
         try {
-            return elementAction().find(signInButton).isEnabled()
-                    &&  elementAction().find(loginField).isEnabled()
-                    &&  elementAction().find(passwordField).isEnabled();
+            return elementAction().find(signInButton).isDisplayed()
+                    &&  elementAction().find(loginField).isDisplayed()
+                    &&  elementAction().find(passwordField).isDisplayed();
         } catch (Exception e) {
             LOGGER.warn("Sign in button is not visible", e);
             return false;

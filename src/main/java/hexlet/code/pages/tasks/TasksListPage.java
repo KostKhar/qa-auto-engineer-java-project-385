@@ -48,11 +48,11 @@ public class TasksListPage extends BasePage {
     }
 
     public boolean isCreateButtonVisible() {
-        return elementAction().find(createButton).isEnabled();
+        return elementAction().find(createButton).isDisplayed();
     }
 
     public boolean isExportButtonVisible() {
-        return elementAction().find(exportButton).isEnabled();
+        return elementAction().find(exportButton).isDisplayed();
     }
 
     public List<String> getColumnNames() {

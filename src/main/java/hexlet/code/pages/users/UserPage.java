@@ -58,13 +58,12 @@ public class UserPage extends BasePage {
         waiter().waitForInvisible(successCreatePopup);
     }
 
-    public UserPage openEditForm() {
+    public void openEditForm() {
         if (isEditFormOpen()) {
-            return this;
+            return;
         }
         elementAction().find(editButton).click();
         waiter().waitForVisible(emailField);
-        return this;
     }
 
     private boolean isEditFormOpen() {
@@ -76,12 +75,11 @@ public class UserPage extends BasePage {
         }
     }
 
-    public boolean updateUser(User user) {
+    public void updateUser(User user) {
         fillUserForm(user);
         elementAction().find(saveButton).click();
         waiter().waitForVisible(successUpdatedPopup);
         waiter().waitForInvisible(successUpdatedPopup);
-        return true;
     }
 
     public void submitFormWithoutWaitingForSuccess() {
@@ -101,23 +99,23 @@ public class UserPage extends BasePage {
     }
 
     public boolean isEmailFieldVisible() {
-        return elementAction().find(emailField).isEnabled();
+        return elementAction().find(emailField).isDisplayed();
     }
 
     public boolean isFirstNameFieldVisible() {
-        return elementAction().find(firstNameField).isEnabled();
+        return elementAction().find(firstNameField).isDisplayed();
     }
 
     public boolean isLastNameFieldVisible() {
-        return elementAction().find(lastNameField).isEnabled();
+        return elementAction().find(lastNameField).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).isEnabled();
+        return elementAction().find(saveButton).isDisplayed();
     }
 
     public boolean isUpdateSuccessful() {
-        return elementAction().find(successUpdatedPopup).isEnabled();
+        return elementAction().find(successUpdatedPopup).isDisplayed();
     }
 
     public boolean isEmailValidationErrorVisible() {

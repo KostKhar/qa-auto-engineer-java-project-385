@@ -32,7 +32,7 @@ public class TaskByIdForm extends BasePage {
     }
 
     public boolean isTitleVisible() {
-        return elementAction().find(title).isEnabled();
+        return elementAction().find(title).isDisplayed();
     }
 
 }

@@ -146,23 +146,23 @@ public class TaskByIdPage extends BasePage {
     }
 
     public boolean isTitleFieldVisible() {
-        return elementAction().find(titleField).isEnabled();
+        return elementAction().find(titleField).isDisplayed();
     }
 
     public boolean isContentFieldVisible() {
-        return elementAction().find(contentField).isEnabled();
+        return elementAction().find(contentField).isDisplayed();
     }
 
     public boolean isAssigneeFieldVisible() {
-        return elementAction().find(assigneeCombobox).isEnabled();
+        return elementAction().find(assigneeCombobox).isDisplayed();
     }
 
     public boolean isStatusFieldVisible() {
-        return elementAction().find(statusCombobox).isEnabled();
+        return elementAction().find(statusCombobox).isDisplayed();
     }
 
     public boolean isSaveButtonVisible() {
-        return elementAction().find(saveButton).isEnabled();
+        return elementAction().find(saveButton).isDisplayed();
     }
 
     public boolean hasValidationError() {
