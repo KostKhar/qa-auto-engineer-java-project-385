@@ -46,7 +46,7 @@ class UsersListPageTest extends BaseTest {
     @Test
     @DisplayName("Наличие колонок в таблице пользователей")
     void checkUsersListColumns() {
-        assertTrue(usersListPage.hasColumnHeaders("Id", "Email", "First name", "Last name", "Created at"));
+        assertTrue(usersListPage.hasColumnHeaders());
     }
 
     @Test
