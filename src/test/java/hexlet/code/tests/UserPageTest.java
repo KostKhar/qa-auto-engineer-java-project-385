@@ -25,9 +25,8 @@ class UserPageTest extends BaseTest {
         assertNotNull(usersListPage);
     }
 
-    private UsersListPage createUserOnList(User user) {
+    private void createUserOnList(User user) {
         usersListPage = usersListPage.clickCreateUser().createUserAndReturnToList(user);
-        return usersListPage;
     }
 
     @Test
