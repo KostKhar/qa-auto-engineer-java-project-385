@@ -7,12 +7,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.openqa.selenium.WebDriver;
 
-/**
- * Runs entity cleanup while the browser session from {@link WebDriverExtension} is still alive.
- * Must be declared <b>after</b> {@link WebDriverExtension} in {@code @ExtendWith} on {@link BaseTest}:
- * JUnit runs {@code afterEach} callbacks in reverse declaration order (LIFO), so this extension's
- * {@link #afterEach} runs before {@link WebDriverExtension#afterEach}.
- */
 public class CleanupExtension implements BeforeEachCallback, AfterEachCallback {
     private static final Namespace NS = Namespace.create(CleanupExtension.class);
     private static final String KEY = "registry";

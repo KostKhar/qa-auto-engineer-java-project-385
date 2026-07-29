@@ -9,12 +9,6 @@ import org.openqa.selenium.WebDriver;
 
 import static hexlet.code.configure.ConfigurationManager.config;
 
-/**
- * Creates the browser before each test and quits it after the test (and after
- * {@link CleanupExtension} has had a chance to clean up using a live driver).
- * Must be declared <b>before</b> {@link CleanupExtension} in {@code @ExtendWith} on {@link BaseTest}
- * — see {@link CleanupExtension} javadoc for why order matters here.
- */
 public class WebDriverExtension implements BeforeEachCallback, AfterEachCallback {
 
     @Override
