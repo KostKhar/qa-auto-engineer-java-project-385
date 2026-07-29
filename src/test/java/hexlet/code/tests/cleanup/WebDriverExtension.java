@@ -15,8 +15,6 @@ public class WebDriverExtension implements BeforeEachCallback, AfterEachCallback
     public void beforeEach(ExtensionContext context) {
         String baseUrl = config().baseUrl();
 
-        System.out.println("Base URL: " + baseUrl);
-
         WebDriver driver = WebDriverFactory.create();
         driver.get(baseUrl);
         resolveBaseTest(context).setDriver(driver);

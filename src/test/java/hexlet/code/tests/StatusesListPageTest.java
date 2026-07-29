@@ -30,6 +30,7 @@ class StatusesListPageTest extends BaseTest {
 
     @BeforeEach
     void login() {
+        driver.getCurrentUrl();
         LoginPage loginPage = new LoginPage(driver);
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
         statusesListPage = dashboardPage.getSideBar().getStatusesListPage();
