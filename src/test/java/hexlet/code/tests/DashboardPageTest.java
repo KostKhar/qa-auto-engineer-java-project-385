@@ -12,7 +12,8 @@ class DashboardPageTest extends BaseTest {
     @Test
     @DisplayName("Нажатие кнопки выхода из системы")
     void checkClickLogoutButton() {
-        driver.getCurrentUrl();
+        System.out.println(driver.getCurrentUrl());
+
         LoginPage loginPage = new LoginPage(driver);
 
         DashboardPage dashboardPage = loginPage.signInByLoginAndPassword("admin", "password");
