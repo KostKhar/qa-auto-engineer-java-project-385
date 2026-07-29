@@ -37,7 +37,7 @@ public class StatusesListPage extends BasePage {
     }
 
     public boolean isTableVisible() {
-        return table.isVisible();
+        return hasColumnHeaders() && table.isVisible();
     }
 
     public int getStatusesCount() {
@@ -48,8 +48,8 @@ public class StatusesListPage extends BasePage {
         return getStatusesCount() == 0;
     }
 
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        return table.hasColumnHeaders(expectedHeaders);
+    public boolean hasColumnHeaders() {
+        return table.hasColumnHeaders("Id", "Name", "Slug", "Created at");
     }
 
     public boolean isCreateButtonVisible() {
@@ -57,7 +57,7 @@ public class StatusesListPage extends BasePage {
     }
 
     public boolean isTableLoaded() {
-        return table.isTableLoaded();
+        return  isTableVisible() && table.isTableLoaded();
     }
 
     public StatusPage clickCreateStatus() {

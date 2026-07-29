@@ -52,8 +52,8 @@ public class UsersListPage extends BasePage {
         return getUsersCount() == 0;
     }
 
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        return table.hasColumnHeaders(expectedHeaders);
+    public boolean hasColumnHeaders() {
+        return table.hasColumnHeaders("Id", "Email", "First name", "Last name", "Created at");
     }
 
     public boolean isCreateButtonVisible() {
@@ -61,7 +61,7 @@ public class UsersListPage extends BasePage {
     }
 
     public boolean isTableLoaded() {
-        return table.isTableLoaded();
+        return hasColumnHeaders() && table.isTableLoaded();
     }
 
     public User getUserAtRow(int rowIndex) {

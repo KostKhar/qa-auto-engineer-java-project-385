@@ -36,15 +36,15 @@ public class LabelsListPage extends BasePage {
     }
 
     public boolean isTableVisible() {
-        return table.isTableContainerVisible();
+        return  table.isTableContainerVisible() && hasColumnHeaders();
     }
 
     public int getLabelsCount() {
         return table.getRowCount();
     }
 
-    public boolean hasColumnHeaders(String... expectedHeaders) {
-        return table.hasColumnHeaders(expectedHeaders);
+    public boolean hasColumnHeaders() {
+        return table.hasColumnHeaders("Id", "Name", "Created at");
     }
 
     public boolean isCreateButtonVisible() {
@@ -52,7 +52,7 @@ public class LabelsListPage extends BasePage {
     }
 
     public boolean isTableLoaded() {
-        return table.isTableLoaded();
+        return  isTableVisible() && table.isTableLoaded();
     }
 
     public LabelPage clickCreateLabel() {

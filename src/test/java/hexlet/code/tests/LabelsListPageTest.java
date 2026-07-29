@@ -36,7 +36,7 @@ class LabelsListPageTest extends BaseTest {
     @Test
     @DisplayName("Наличие колонок в таблице меток")
     void checkLabelsListColumns() {
-        assertTrue(labelsListPage.hasColumnHeaders("Id", "Name", "Created at"));
+        assertTrue(labelsListPage.hasColumnHeaders());
     }
 
     @Test
