@@ -4,6 +4,7 @@ import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.TimeoutException;
@@ -33,6 +34,20 @@ public class LabelsListPage extends BasePage {
                     createdAt
             );
         });
+    }
+
+    public void assertLabelsPageHealthy() {
+        By labelsError = By.cssSelector("[data-testid='labels-error']");
+        ((JavascriptExecutor) getDriver()).executeScript("window.dispatchEvent(new Event('hashchange'));");
+        waiter().waitForCondition(driver ->
+                !driver.findElements(labelsError).isEmpty()
+                        || !driver.findElements(By.className("RaList-main")).isEmpty());
+        if (!getDriver().findElements(labelsError).isEmpty()) {
+            throw new AssertionError("Labels page shows error 'Лейблы недоступны'");
+        }
+        if (!isTableVisible() || getLabelsCount() <= 0) {
+            throw new AssertionError("Labels table is empty or not visible");
+        }
     }
 
     public boolean isTableVisible() {

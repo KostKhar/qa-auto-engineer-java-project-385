@@ -29,6 +29,7 @@ class LabelsListPageTest extends BaseTest {
     @Test
     @DisplayName("Отображение страницы списка меток")
     void checkLabelsListPage() {
+        labelsListPage.assertLabelsPageHealthy();
         assertTrue(labelsListPage.isTableVisible());
         assertTrue(labelsListPage.isCreateButtonVisible());
     }

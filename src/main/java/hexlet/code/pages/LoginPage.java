@@ -12,10 +12,9 @@ public class LoginPage extends BasePage {
 
     private final By loginField = By.xpath("//*[@name='username']");
     private final By passwordField = By.xpath("//*[@name='password']");
-
-    private final By signInButton = By.xpath("//*[text()='Sign in']");
-
+    private final By signInButton = By.xpath("//button[normalize-space()='Sign in']");
     private final By errorMessage = By.xpath("//*[text()='Required']");
+    private final By dashboardTitle = By.xpath("//*[contains(text(),'Lorem ipsum')]");
 
     public LoginPage(WebDriver driver) {
         super(driver);
@@ -29,6 +28,13 @@ public class LoginPage extends BasePage {
         Allure.step("Нажимаем на кнопку Sign in",
                 () -> elementAction().find(signInButton).click());
         waiter().waitForPageLoaded();
+
+        boolean expectSuccess = username != null && !username.isBlank()
+                && password != null && !password.isBlank();
+        if (expectSuccess) {
+            waiter().waitForVisible(dashboardTitle);
+        }
+
         return new DashboardPage(getDriver());
     }
 
@@ -39,8 +45,8 @@ public class LoginPage extends BasePage {
     public boolean isLoginElementsIsVisible() {
         try {
             return elementAction().find(signInButton).isDisplayed()
-                    &&  elementAction().find(loginField).isDisplayed()
-                    &&  elementAction().find(passwordField).isDisplayed();
+                    && elementAction().find(loginField).isDisplayed()
+                    && elementAction().find(passwordField).isDisplayed();
         } catch (Exception e) {
             LOGGER.warn("Sign in button is not visible", e);
             return false;

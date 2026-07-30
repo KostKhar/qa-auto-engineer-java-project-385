@@ -108,6 +108,7 @@ public final class Table<T> {
     public void clickCreateButton() {
         waiter.waitForInvisibleIfPresent(SNACKBAR);
         elementAction.find(CREATE_BUTTON).click();
+        waiter.waitForVisible(By.cssSelector("input[name], textarea[name]"));
     }
 
     public List<WebElement> getRows() {

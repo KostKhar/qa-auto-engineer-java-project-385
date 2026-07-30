@@ -50,6 +50,7 @@ class TasksListPageTest extends BaseTest {
     @Test
     @DisplayName("Отображение Kanban-доски задач")
     void checkTasksKanbanPage() {
+        tasksListPage.assertTasksPageHealthy();
         assertAll(
                 () -> assertTrue(tasksListPage.getVisibleTaskCount() > 0),
                 () -> assertTrue(tasksListPage.isBoardVisible()),
@@ -62,10 +63,33 @@ class TasksListPageTest extends BaseTest {
     @Test
     @DisplayName("Задачи загружены на доске")
     void checkTasksAreLoaded() {
+        tasksListPage.assertTasksPageHealthy();
         assertAll(
                 () -> assertTrue(tasksListPage.isBoardLoaded()),
                 () -> assertTrue(tasksListPage.getVisibleTaskCount() > 0),
                 () -> assertTrue(tasksListPage.isTaskExists("Task 1"))
+        );
+    }
+
+    @Test
+    @DisplayName("Создание задачи открывает форму и сохраняет карточку")
+    void checkCreateTaskOpensFormAndSavesCard() {
+        Task testTask = RandomTestData.getTask();
+        cleanup().trackTask(testTask.getTitle());
+
+        TaskByIdPage form = tasksListPage.clickCreateTask();
+        assertAll(
+                () -> assertTrue(form.isTitleFieldVisible()),
+                () -> assertTrue(form.isAssigneeFieldVisible()),
+                () -> assertTrue(form.isStatusFieldVisible()),
+                () -> assertTrue(form.isSaveButtonVisible())
+        );
+
+        tasksListPage = form.createTaskAndReturnToBoard(testTask);
+        tasksListPage.assertTasksPageHealthy();
+        assertAll(
+                () -> assertTrue(tasksListPage.isTaskExists(testTask.getTitle())),
+                () -> assertTrue(tasksListPage.isTaskInColumn(testTask.getTitle(), testTask.getStatusName()))
         );
     }
 

@@ -4,6 +4,7 @@ import hexlet.code.components.SideBar;
 import hexlet.code.components.Table;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.TimeoutException;
@@ -34,6 +35,20 @@ public class StatusesListPage extends BasePage {
             );
         });
         table.waitForReady();
+    }
+
+    public void assertStatusesPageHealthy() {
+        By statusesError = By.cssSelector("[data-testid='statuses-error']");
+        ((JavascriptExecutor) getDriver()).executeScript("window.dispatchEvent(new Event('hashchange'));");
+        waiter().waitForCondition(driver ->
+                !driver.findElements(statusesError).isEmpty()
+                        || !driver.findElements(By.cssSelector("[aria-label='Create']")).isEmpty());
+        if (!getDriver().findElements(statusesError).isEmpty()) {
+            throw new AssertionError("Statuses page shows error 'Статусы недоступны'");
+        }
+        if (!isTableVisible() || getStatusesCount() <= 0) {
+            throw new AssertionError("Statuses table is empty or not visible");
+        }
     }
 
     public boolean isTableVisible() {

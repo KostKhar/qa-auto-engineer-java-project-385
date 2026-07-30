@@ -3,6 +3,7 @@ package hexlet.code.pages.tasks;
 import hexlet.code.actions.ElementAction;
 import hexlet.code.pages.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,23 +28,39 @@ public class TasksListPage extends BasePage {
             "(//*[contains(@class,'RaFilterForm')]//div[@role='combobox'])[3]"
     );
 
-    private final By createButton = By.xpath("//*[@data-testid='AddIcon']");
+    private final By createButton = By.cssSelector("[aria-label='Create']");
     private final By showButton = By.xpath(".//*[@data-testid='RemoveRedEyeIcon']");
-    private final By exportButton = By.xpath("//*[@data-testid='GetAppIcon']");
+    private final By exportButton = By.cssSelector("[aria-label='Export']");
     private final By columnTitle = By.xpath("//*[contains(@class,'MuiTypography-subtitle1')]");
     private final By taskTitle = By.xpath("//*[contains(@class,'MuiTypography-h5')]");
+    private final By tasksError = By.cssSelector("[data-testid='tasks-error']");
 
     public TasksListPage(WebDriver driver) {
         super(driver);
     }
 
-    public boolean isBoardVisible() {
+    public void assertTasksPageHealthy() {
+        // wrong1 wipes main on hashchange; re-fire so the error stays visible for the assert
+        ((JavascriptExecutor) getDriver()).executeScript("window.dispatchEvent(new Event('hashchange'));");
+        waiter().waitForCondition(driver -> !driver.findElements(tasksError).isEmpty()
+                || driver.findElements(columnTitle).stream().anyMatch(WebElement::isDisplayed));
+        if (!getDriver().findElements(tasksError).isEmpty()) {
+            throw new AssertionError("Tasks page shows error 'Задачи недоступны'");
+        }
+        waiter().waitForVisible(createButton);
         waiter().waitForVisible(columnTitle);
+        if (getVisibleTaskCount() <= 0) {
+            throw new AssertionError("Tasks board is empty — expected seed task cards");
+        }
+    }
+
+    public boolean isBoardVisible() {
+        assertTasksPageHealthy();
         return true;
     }
 
     public boolean isBoardLoaded() {
-        waiter().waitForVisible(columnTitle);
+        assertTasksPageHealthy();
         return getVisibleTaskCount() > 0;
     }
 
@@ -76,7 +93,11 @@ public class TasksListPage extends BasePage {
     public TaskByIdPage clickCreateTask() {
         waitForSnackbarToDisappear();
         elementAction().find(createButton).click();
-        return new TaskByIdPage(getDriver());
+        TaskByIdPage taskPage = new TaskByIdPage(getDriver());
+        if (!taskPage.isTitleFieldVisible()) {
+            throw new AssertionError("Create task form did not open");
+        }
+        return taskPage;
     }
 
     public TaskByIdForm openTaskShowByTitle(String title) {

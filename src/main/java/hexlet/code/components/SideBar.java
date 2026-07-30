@@ -31,7 +31,9 @@ public class SideBar {
 
     public TasksListPage getTaskListPage() {
         clickLink(tasksButton);
-        return new TasksListPage(driver);
+        TasksListPage page = new TasksListPage(driver);
+        page.assertTasksPageHealthy();
+        return page;
     }
 
     public UsersListPage getUsersListPage() {
@@ -41,12 +43,16 @@ public class SideBar {
 
     public LabelsListPage getLabelsListPage() {
         clickLink(labelsButton);
-        return new LabelsListPage(driver);
+        LabelsListPage page = new LabelsListPage(driver);
+        page.assertLabelsPageHealthy();
+        return page;
     }
 
     public StatusesListPage getStatusesListPage() {
         clickLink(taskStatusesButton);
-        return new StatusesListPage(driver);
+        StatusesListPage page = new StatusesListPage(driver);
+        page.assertStatusesPageHealthy();
+        return page;
     }
 
     private void clickLink(By locator) {

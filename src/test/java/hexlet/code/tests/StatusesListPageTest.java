@@ -40,6 +40,7 @@ class StatusesListPageTest extends BaseTest {
     @Test
     @DisplayName("Отображение страницы списка статусов")
     void checkStatusesListPage() {
+        statusesListPage.assertStatusesPageHealthy();
         assertTrue(statusesListPage.hasColumnHeaders());
         assertTrue(statusesListPage.isTableVisible());
         assertTrue(statusesListPage.isCreateButtonVisible());

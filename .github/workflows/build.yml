@@ -37,7 +37,7 @@ jobs:
         run: |
           docker run -d --name kanban-app --rm -p 5173:5173 hexletprojects/qa_auto_java_testing_kanban_board_project_ru_app
           for i in $(seq 1 30); do
-            curl -sf ${{APP_BASE_URL}} > /dev/null && break
+            curl -sf http://localhost:5173/ > /dev/null && break
             sleep 2
           done
           chmod +x gradlew
