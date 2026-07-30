@@ -86,7 +86,7 @@ public class ElementAction {
         return element.isDisplayed();
     }
 
-    public ElementAction scrollIntoView() {
+    public void scrollIntoView() {
         WebElement target;
         if (element != null) {
             target = element;
@@ -99,7 +99,6 @@ public class ElementAction {
         if (element == null) {
             element = target;
         }
-        return this;
     }
 
     public void scrollIntoView(WebElement target) {
