@@ -23,9 +23,6 @@ public class ElementAction {
         this.waiter = waiter;
     }
 
-    public ElementAction(WebDriver driver, WebElement element) {
-        this(driver, new Waiter(driver), element);
-    }
 
     public ElementAction(WebDriver driver, Waiter waiter, WebElement element) {
         this(driver, waiter);
@@ -62,13 +59,12 @@ public class ElementAction {
         return this;
     }
 
-    public ElementAction clearAndSendKeys(String text) {
+    public void clearAndSendKeys(String text) {
         ensureElement();
         setReactInputValue(element, "");
         if (text != null && !text.isEmpty()) {
             element.sendKeys(text);
         }
-        return this;
     }
 
     public String getText() {
