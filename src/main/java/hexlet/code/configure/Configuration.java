@@ -11,7 +11,6 @@ import org.aeonbits.owner.Config;
 public interface Configuration extends Config {
 
     @Key("APP_BASE_URL")
-//    @DefaultValue("http://localhost:5173/")
     String baseUrl();
 
     @Key("headless")
